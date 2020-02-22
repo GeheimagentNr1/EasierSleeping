@@ -34,7 +34,7 @@ public class SleepingManager {
 	public static void updateSleepingPlayers( MinecraftServer server ) {
 		
 		for( World world : server.getWorlds() ) {
-			if( !ModConfig.getDimensions().contains( world.getDimension().getType().getId() ) ) {
+			if( !ModConfig.getDimensions().contains( world.getDimension().getType() ) ) {
 				continue;
 			}
 			TreeSet<PlayerEntity> sleeping_players = SLEEPING.get( world.getDimension().getType() );

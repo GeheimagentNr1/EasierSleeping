@@ -3,16 +3,14 @@ package de.geheimagentnr1.easier_sleeping.config;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
 import de.geheimagentnr1.easier_sleeping.EasierSleeping;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.loading.FMLPaths;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.TreeSet;
+import java.util.*;
 
 
 public class ModConfig {
@@ -34,9 +32,10 @@ public class ModConfig {
 	
 	private final static ForgeConfigSpec.ConfigValue<String> MORNING_MESSAGE;
 	
-	private final static ForgeConfigSpec.ConfigValue<List<Integer>> DIMENSIONS;
+	private final static ForgeConfigSpec.ConfigValue<List<String>> DIMENSIONS;
 	
-	private final static TreeSet<Integer> dimensions = new TreeSet<>();
+	private final static TreeSet<DimensionType> dimensions = new TreeSet<>(
+		Comparator.comparingInt( DimensionType::getId ) );
 	
 	static {
 		
@@ -49,10 +48,11 @@ public class ModConfig {
 		MORNING_MESSAGE = BUILDER.comment( "Message shown, if the night was skipped" )
 			.define( "morning_message", "Good Morning" );
 		DIMENSIONS = BUILDER.comment( "Dimensions in which, the sleeping percentage is activ." )
-			.define( "dimensions", Collections.singletonList( 0 ), o -> {
+			.define( "dimensions", Collections.singletonList(
+				Objects.requireNonNull( DimensionType.OVERWORLD.getRegistryName() ).toString() ), o -> {
 				if( o instanceof List<?> ) {
 					List<?> list = (List<?>)o;
-					return list.isEmpty() || list.get( 0 ) instanceof Integer;
+					return list.isEmpty() || list.get( 0 ) instanceof String;
 				}
 				return false;
 			} );
@@ -79,19 +79,34 @@ public class ModConfig {
 	
 	private static void checkCorrectAndReadDimensions() {
 		
-		ArrayList<Integer> read_dimensions = new ArrayList<>( DIMENSIONS.get() );
+		ArrayList<String> read_dimensions = new ArrayList<>( DIMENSIONS.get() );
 		
 		dimensions.clear();
-		for( Integer read_dimension : read_dimensions ) {
-			if( DimensionType.getById( read_dimension ) == null ) {
-				LOGGER.warn( "Removed invalid dimension id {}", read_dimension );
+		for( String read_dimension : read_dimensions ) {
+			if( ResourceLocation.isResouceNameValid( read_dimension ) ) {
+				DimensionType dimension = DimensionType.byName( new ResourceLocation( read_dimension ) );
+				if( dimension == null ) {
+					LOGGER.warn( "Removed unknown dimension: {}", read_dimension );
+				} else {
+					dimensions.add( dimension );
+				}
 			} else {
-				dimensions.add( read_dimension );
+				LOGGER.warn( "Removed invalid dimension registry name {}", read_dimension );
 			}
 		}
 		if( DIMENSIONS.get().size() != dimensions.size() ) {
-			DIMENSIONS.set( new ArrayList<>( dimensions ) );
+			DIMENSIONS.set( dimensionsToRegistryNameList() );
 		}
+	}
+	
+	private static ArrayList<String> dimensionsToRegistryNameList() {
+		
+		ArrayList<String> registryNames = new ArrayList<>();
+		
+		for( DimensionType dimension : dimensions ) {
+			registryNames.add( Objects.requireNonNull( dimension.getRegistryName() ).toString() );
+		}
+		return registryNames;
 	}
 	
 	public static int getSleepPercent() {
@@ -134,24 +149,24 @@ public class ModConfig {
 		MORNING_MESSAGE.set( message );
 	}
 	
-	public static TreeSet<Integer> getDimensions() {
+	public static TreeSet<DimensionType> getDimensions() {
 		
 		return dimensions;
 	}
 	
 	public static void addDimension( DimensionType dimension ) {
 		
-		if( !dimensions.contains( dimension.getId() ) ) {
-			dimensions.add( dimension.getId() );
-			DIMENSIONS.set( new ArrayList<>( dimensions ) );
+		if( !dimensions.contains( dimension ) ) {
+			dimensions.add( dimension );
+			DIMENSIONS.set( dimensionsToRegistryNameList() );
 		}
 	}
 	
 	public static void removeDimension( DimensionType dimension ) {
 		
-		if( dimensions.contains( dimension.getId() ) ) {
-			dimensions.remove( dimension.getId() );
-			DIMENSIONS.set( new ArrayList<>( dimensions ) );
+		if( dimensions.contains( dimension ) ) {
+			dimensions.remove( dimension );
+			DIMENSIONS.set( dimensionsToRegistryNameList() );
 		}
 	}
 }

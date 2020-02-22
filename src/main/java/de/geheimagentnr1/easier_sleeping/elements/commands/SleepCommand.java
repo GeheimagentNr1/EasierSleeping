@@ -124,12 +124,9 @@ public class SleepCommand {
 		CommandSource source = context.getSource();
 		
 		source.sendFeedback( new StringTextComponent( "Dimesions:" ), false );
-		for( Integer dimensionId : ModConfig.getDimensions() ) {
-			DimensionType dimension = DimensionType.getById( dimensionId );
-			if( dimension != null ) {
-				source.sendFeedback( new StringTextComponent( " - " )
-					.appendText( String.valueOf( dimension.getRegistryName() ) ), false );
-			}
+		for( DimensionType dimension : ModConfig.getDimensions() ) {
+			source.sendFeedback( new StringTextComponent( " - " )
+				.appendText( String.valueOf( dimension.getRegistryName() ) ), false );
 		}
 		return Command.SINGLE_SUCCESS;
 	}
