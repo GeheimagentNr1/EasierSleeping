@@ -26,7 +26,7 @@ public class SleepingManager {
 		
 		SLEEPING = new TreeMap<>( Comparator.comparingInt( DimensionType::getId ) );
 		for( World world : ServerLifecycleHooks.getCurrentServer().getWorlds() ) {
-			if( !ModConfig.DIMENSIONS.get().contains( world.dimension.getType().getId() ) ) {
+			if( !ModConfig.getDimensions().contains( world.dimension.getType().getId() ) ) {
 				continue;
 			}
 			SLEEPING.put( world.getDimension().getType(),
@@ -37,7 +37,7 @@ public class SleepingManager {
 	public static void updateSleepingPlayers( MinecraftServer server ) {
 		
 		for( World world : server.getWorlds() ) {
-			if( !ModConfig.DIMENSIONS.get().contains( world.getDimension().getType().getId() ) ) {
+			if( !ModConfig.getDimensions().contains( world.getDimension().getType().getId() ) ) {
 				continue;
 			}
 			TreeSet<PlayerEntity> sleeping_players = SLEEPING.get( world.getDimension().getType() );
@@ -58,7 +58,7 @@ public class SleepingManager {
 			}
 			int sleeping_percent = caculateSleepingPercent( countSleepingPlayers( sleeping_players ),
 				non_spectator_player_count );
-			if( sleeping_percent >= ModConfig.SLEEP_PERCENT.get() ||
+			if( sleeping_percent >= ModConfig.getSleepPercent() ||
 				non_spectator_player_count == sleeping_players.size() ) {
 				if( world.getGameRules().getBoolean( GameRules.DO_DAYLIGHT_CYCLE ) ) {
 					world.setDayTime( 0 );
@@ -99,19 +99,19 @@ public class SleepingManager {
 		int sleep_player_count, int non_spectator_player_count, PlayerEntity wake_player ) {
 		
 		sendMessage( world, players, buildWakeSleepMessage( wake_player, sleep_player_count,
-			non_spectator_player_count, ModConfig.WAKE_MESSAGE.get() ) );
+			non_spectator_player_count, ModConfig.getWakeMessage() ) );
 	}
 	
 	private static void sendSleepMessage( World world, List<? extends PlayerEntity> players,
 		int sleep_player_count, int non_spectator_player_count, PlayerEntity wake_player ) {
 		
 		sendMessage( world, players, buildWakeSleepMessage( wake_player, sleep_player_count,
-			non_spectator_player_count, ModConfig.SLEEP_MESSAGE.get() ) );
+			non_spectator_player_count, ModConfig.getSleepMessage() ) );
 	}
 	
 	private static void sendMorningMessage( World world, List<? extends PlayerEntity> players ) {
 		
-		sendMessage( world, players, new StringTextComponent( ModConfig.MORNING_MESSAGE.get() ) );
+		sendMessage( world, players, new StringTextComponent( ModConfig.getMorningMessage() ) );
 	}
 	
 	private static void sendMessage( World world, List<? extends PlayerEntity> players,

@@ -8,6 +8,7 @@ import net.minecraftforge.fml.loading.FMLPaths;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -23,15 +24,17 @@ public class ModConfig {
 	
 	private final static ForgeConfigSpec CONFIG;
 	
-	public final static ForgeConfigSpec.IntValue SLEEP_PERCENT;
+	private final static ForgeConfigSpec.IntValue SLEEP_PERCENT;
 	
-	public final static ForgeConfigSpec.ConfigValue<String> SLEEP_MESSAGE;
+	private final static ForgeConfigSpec.ConfigValue<String> SLEEP_MESSAGE;
 	
-	public final static ForgeConfigSpec.ConfigValue<String> WAKE_MESSAGE;
+	private final static ForgeConfigSpec.ConfigValue<String> WAKE_MESSAGE;
 	
-	public final static ForgeConfigSpec.ConfigValue<String> MORNING_MESSAGE;
+	private final static ForgeConfigSpec.ConfigValue<String> MORNING_MESSAGE;
 	
-	public final static ForgeConfigSpec.ConfigValue<List<Integer>> DIMENSIONS;
+	private final static ForgeConfigSpec.ConfigValue<List<Integer>> DIMENSIONS;
+	
+	private static ArrayList<Integer> dimensions;
 	
 	static {
 		
@@ -68,6 +71,32 @@ public class ModConfig {
 		LOGGER.info( "{} = {}", WAKE_MESSAGE.getPath(), WAKE_MESSAGE.get() );
 		LOGGER.info( "{} = {}", MORNING_MESSAGE.getPath(), MORNING_MESSAGE.get() );
 		LOGGER.info( "{} = {}", DIMENSIONS.getPath(), DIMENSIONS.get() );
+		dimensions = new ArrayList<>( DIMENSIONS.get() );
 		LOGGER.info( "\"{}\" Config loaded", mod_name );
+	}
+	
+	public static int getSleepPercent() {
+		
+		return SLEEP_PERCENT.get();
+	}
+	
+	public static String getSleepMessage() {
+		
+		return SLEEP_MESSAGE.get();
+	}
+	
+	public static String getWakeMessage() {
+		
+		return WAKE_MESSAGE.get();
+	}
+	
+	public static String getMorningMessage() {
+		
+		return MORNING_MESSAGE.get();
+	}
+	
+	public static ArrayList<Integer> getDimensions() {
+		
+		return dimensions;
 	}
 }

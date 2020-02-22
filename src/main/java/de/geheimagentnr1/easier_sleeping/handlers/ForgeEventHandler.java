@@ -25,7 +25,7 @@ public class ForgeEventHandler {
 	public static void handlerServerStartEvent( FMLServerStartingEvent event ) {
 		
 		ModConfig.load();
-		if( !ModConfig.DIMENSIONS.get().isEmpty() ) {
+		if( !ModConfig.getDimensions().isEmpty() ) {
 			SleepingManager.init();
 			WorldWorkerManager.addWorker( new SleepingWorker() );
 		}
