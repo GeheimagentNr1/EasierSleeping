@@ -3,6 +3,7 @@ package de.geheimagentnr1.easier_sleeping.config;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
 import de.geheimagentnr1.easier_sleeping.EasierSleeping;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.loading.FMLPaths;
 import org.apache.logging.log4j.LogManager;
@@ -11,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.TreeSet;
 
 
 public class ModConfig {
@@ -34,7 +36,7 @@ public class ModConfig {
 	
 	private final static ForgeConfigSpec.ConfigValue<List<Integer>> DIMENSIONS;
 	
-	private static ArrayList<Integer> dimensions;
+	private final static TreeSet<Integer> dimensions = new TreeSet<>();
 	
 	static {
 		
@@ -66,13 +68,30 @@ public class ModConfig {
 		LOGGER.info( "Loading \"{}\" Config", mod_name );
 		configData.load();
 		CONFIG.setConfig( configData );
+		checkCorrectAndReadDimensions();
 		LOGGER.info( "{} = {}", SLEEP_PERCENT.getPath(), SLEEP_PERCENT.get() );
 		LOGGER.info( "{} = {}", SLEEP_MESSAGE.getPath(), SLEEP_MESSAGE.get() );
 		LOGGER.info( "{} = {}", WAKE_MESSAGE.getPath(), WAKE_MESSAGE.get() );
 		LOGGER.info( "{} = {}", MORNING_MESSAGE.getPath(), MORNING_MESSAGE.get() );
 		LOGGER.info( "{} = {}", DIMENSIONS.getPath(), DIMENSIONS.get() );
-		dimensions = new ArrayList<>( DIMENSIONS.get() );
 		LOGGER.info( "\"{}\" Config loaded", mod_name );
+	}
+	
+	private static void checkCorrectAndReadDimensions() {
+		
+		ArrayList<Integer> read_dimensions = new ArrayList<>( DIMENSIONS.get() );
+		
+		dimensions.clear();
+		for( Integer read_dimension : read_dimensions ) {
+			if( DimensionType.getById( read_dimension ) == null ) {
+				LOGGER.warn( "Removed invalid dimension id {}", read_dimension );
+			} else {
+				dimensions.add( read_dimension );
+			}
+		}
+		if( DIMENSIONS.get().size() != dimensions.size() ) {
+			DIMENSIONS.set( new ArrayList<>( dimensions ) );
+		}
 	}
 	
 	public static int getSleepPercent() {
@@ -80,9 +99,19 @@ public class ModConfig {
 		return SLEEP_PERCENT.get();
 	}
 	
+	public static void setSleepPercent( int sleep_percent ) {
+		
+		SLEEP_PERCENT.set( sleep_percent );
+	}
+	
 	public static String getSleepMessage() {
 		
 		return SLEEP_MESSAGE.get();
+	}
+	
+	public static void setSleepMessage( String message ) {
+		
+		SLEEP_MESSAGE.set( message );
 	}
 	
 	public static String getWakeMessage() {
@@ -90,13 +119,39 @@ public class ModConfig {
 		return WAKE_MESSAGE.get();
 	}
 	
+	public static void setWakeMessage( String message ) {
+		
+		WAKE_MESSAGE.set( message );
+	}
+	
 	public static String getMorningMessage() {
 		
 		return MORNING_MESSAGE.get();
 	}
 	
-	public static ArrayList<Integer> getDimensions() {
+	public static void setMorningMessage( String message ) {
+		
+		MORNING_MESSAGE.set( message );
+	}
+	
+	public static TreeSet<Integer> getDimensions() {
 		
 		return dimensions;
+	}
+	
+	public static void addDimension( DimensionType dimension ) {
+		
+		if( !dimensions.contains( dimension.getId() ) ) {
+			dimensions.add( dimension.getId() );
+			DIMENSIONS.set( new ArrayList<>( dimensions ) );
+		}
+	}
+	
+	public static void removeDimension( DimensionType dimension ) {
+		
+		if( dimensions.contains( dimension.getId() ) ) {
+			dimensions.remove( dimension.getId() );
+			DIMENSIONS.set( new ArrayList<>( dimensions ) );
+		}
 	}
 }

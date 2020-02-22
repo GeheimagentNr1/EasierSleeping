@@ -1,6 +1,7 @@
 package de.geheimagentnr1.easier_sleeping.handlers;
 
 import de.geheimagentnr1.easier_sleeping.config.ModConfig;
+import de.geheimagentnr1.easier_sleeping.elements.commands.SleepCommand;
 import de.geheimagentnr1.easier_sleeping.sleeping.SleepingManager;
 import de.geheimagentnr1.easier_sleeping.sleeping.SleepingWorker;
 import net.minecraft.block.BedBlock;
@@ -24,11 +25,10 @@ public class ForgeEventHandler {
 	@SubscribeEvent
 	public static void handlerServerStartEvent( FMLServerStartingEvent event ) {
 		
+		SleepCommand.register( event.getCommandDispatcher() );
 		ModConfig.load();
-		if( !ModConfig.getDimensions().isEmpty() ) {
-			SleepingManager.init();
-			WorldWorkerManager.addWorker( new SleepingWorker() );
-		}
+		SleepingManager.init();
+		WorldWorkerManager.addWorker( new SleepingWorker() );
 	}
 	
 	@SubscribeEvent

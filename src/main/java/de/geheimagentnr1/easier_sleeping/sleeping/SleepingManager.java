@@ -26,9 +26,6 @@ public class SleepingManager {
 		
 		SLEEPING = new TreeMap<>( Comparator.comparingInt( DimensionType::getId ) );
 		for( World world : ServerLifecycleHooks.getCurrentServer().getWorlds() ) {
-			if( !ModConfig.getDimensions().contains( world.dimension.getType().getId() ) ) {
-				continue;
-			}
 			SLEEPING.put( world.getDimension().getType(),
 				new TreeSet<>( Comparator.comparing( Entity::getUniqueID ) ) );
 		}
