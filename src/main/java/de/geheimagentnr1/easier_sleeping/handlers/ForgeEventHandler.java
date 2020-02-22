@@ -37,7 +37,7 @@ public class ForgeEventHandler {
 		World world = event.getWorld();
 		PlayerEntity player = event.getPlayer();
 		
-		if( !world.isRemote() && world.isDaytime() && !player.isSpectator() ) {
+		if( !world.isRemote() && world.isDaytime() && !player.isSpectator() && !player.isSneaking() ) {
 			BlockPos pos = event.getPos();
 			BlockState state = world.getBlockState( pos );
 			if( state.getBlock() instanceof BedBlock ) {
