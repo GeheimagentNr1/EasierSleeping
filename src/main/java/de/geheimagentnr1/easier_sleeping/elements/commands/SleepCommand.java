@@ -48,14 +48,7 @@ public class SleepCommand {
 			.then( Commands.literal( "remove" )
 				.then( Commands.argument( "dimension", DimensionArgument.getDimension() )
 					.executes( SleepCommand::removeDimension ) ) ) );
-		//TODO:
-		// sleep
-		// message <wake/sleep/morning> <Message>
-		// Messages bearbeiten
-		// sleep_percent <Percent>
-		// Schlaf Prozent
-		// dimension <add/remove> <Dimension>
-		// Dimensionen Hinzufügen entfernen
+
 		dispatcher.register( sleep );
 	}
 	
