@@ -18,7 +18,7 @@ public class ModConfig {
 	
 	private final static Logger LOGGER = LogManager.getLogger();
 	
-	private final static String mod_name = "Many Ideas Core";
+	private final static String mod_name = "Easier Sleeping";
 	
 	private final static ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 	
