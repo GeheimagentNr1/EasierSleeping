@@ -83,8 +83,9 @@ public class ModConfig {
 		
 		dimensions.clear();
 		for( String read_dimension : read_dimensions ) {
-			if( ResourceLocation.isResouceNameValid( read_dimension ) ) {
-				DimensionType dimension = DimensionType.byName( new ResourceLocation( read_dimension ) );
+			ResourceLocation registry_name = ResourceLocation.tryCreate( read_dimension );
+			if( registry_name != null ) {
+				DimensionType dimension = DimensionType.byName( registry_name );
 				if( dimension == null ) {
 					LOGGER.warn( "Removed unknown dimension: {}", read_dimension );
 				} else {
