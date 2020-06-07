@@ -116,7 +116,7 @@ public class SleepCommand {
 		
 		CommandSource source = context.getSource();
 		
-		source.sendFeedback( new StringTextComponent( "Dimesions:" ), false );
+		source.sendFeedback( new StringTextComponent( "Dimensions:" ), false );
 		for( DimensionType dimension : ModConfig.getDimensions() ) {
 			source.sendFeedback( new StringTextComponent( " - " )
 				.appendText( String.valueOf( dimension.getRegistryName() ) ), false );
@@ -128,7 +128,7 @@ public class SleepCommand {
 		
 		DimensionType dimension = DimensionArgument.getDimensionArgument( context, "dimension" );
 		ModConfig.addDimension( dimension );
-		context.getSource().sendFeedback( new StringTextComponent( "Added Dimesion: " )
+		context.getSource().sendFeedback( new StringTextComponent( "Added Dimension: " )
 			.appendText( String.valueOf( dimension.getRegistryName() ) ), true );
 		return Command.SINGLE_SUCCESS;
 	}
@@ -137,7 +137,7 @@ public class SleepCommand {
 		
 		DimensionType dimension = DimensionArgument.getDimensionArgument( context, "dimension" );
 		ModConfig.removeDimension( dimension );
-		context.getSource().sendFeedback( new StringTextComponent( "Removed Dimesion: " )
+		context.getSource().sendFeedback( new StringTextComponent( "Removed Dimension: " )
 			.appendText( String.valueOf( dimension.getRegistryName() ) ), true );
 		return Command.SINGLE_SUCCESS;
 	}
