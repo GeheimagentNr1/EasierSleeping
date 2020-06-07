@@ -61,7 +61,10 @@ public class SleepingManager {
 				if( world.getGameRules().getBoolean( GameRules.DO_DAYLIGHT_CYCLE ) ) {
 					world.setDayTime( 0 );
 				}
-				sleeping_players.forEach( player -> player.wakeUpPlayer( false, false, true ) );
+				sleeping_players.forEach( player -> {
+					player.setSpawnPoint( player.getBedLocation( player.dimension ), false, false, player.dimension );
+					player.wakeUp();
+				} );
 				if( world.getGameRules().getBoolean( GameRules.DO_WEATHER_CYCLE ) ) {
 					world.getDimension().resetRainAndThunder();
 				}

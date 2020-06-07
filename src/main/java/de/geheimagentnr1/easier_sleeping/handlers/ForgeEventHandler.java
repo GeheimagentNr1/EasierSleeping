@@ -41,7 +41,7 @@ public class ForgeEventHandler {
 			BlockPos pos = event.getPos();
 			BlockState state = world.getBlockState( pos );
 			if( state.getBlock() instanceof BedBlock ) {
-				player.setSpawnPoint( pos, false, event.getWorld().getDimension().getType() );
+				player.setSpawnPoint( pos, false, false, event.getWorld().getDimension().getType() );
 				player.sendMessage( new StringTextComponent( "Set new spawnpoint" ) );
 				event.setCanceled( true );
 			}
