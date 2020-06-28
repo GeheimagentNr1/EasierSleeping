@@ -3,10 +3,14 @@ package de.geheimagentnr1.easier_sleeping.config;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
 import de.geheimagentnr1.easier_sleeping.EasierSleeping;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.loading.FMLPaths;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -34,8 +38,8 @@ public class ModConfig {
 	
 	private final static ForgeConfigSpec.ConfigValue<List<String>> DIMENSIONS;
 	
-	private final static TreeSet<DimensionType> dimensions = new TreeSet<>(
-		Comparator.comparingInt( DimensionType::getId ) );
+	private final static TreeSet<RegistryKey<World>> dimensions = new TreeSet<>(
+		Comparator.comparing( RegistryKey::func_240901_a_ ) );
 	
 	static {
 		
@@ -49,7 +53,7 @@ public class ModConfig {
 			.define( "morning_message", "Good Morning" );
 		DIMENSIONS = BUILDER.comment( "Dimensions in which, the sleeping percentage is activ." )
 			.define( "dimensions", Collections.singletonList(
-				Objects.requireNonNull( DimensionType.OVERWORLD.getRegistryName() ).toString() ), o -> {
+				Objects.requireNonNull( World.field_234918_g_.func_240901_a_() ).toString() ), o -> {
 				if( o instanceof List<?> ) {
 					List<?> list = (List<?>)o;
 					return list.isEmpty() || list.get( 0 ) instanceof String;
@@ -85,11 +89,13 @@ public class ModConfig {
 		for( String read_dimension : read_dimensions ) {
 			ResourceLocation registry_name = ResourceLocation.tryCreate( read_dimension );
 			if( registry_name != null ) {
-				DimensionType dimension = DimensionType.byName( registry_name );
-				if( dimension == null ) {
+				RegistryKey<World> registrykey = RegistryKey.func_240903_a_( Registry.field_239699_ae_,
+					registry_name );
+				ServerWorld serverworld = ServerLifecycleHooks.getCurrentServer().getWorld( registrykey );
+				if( serverworld == null ) {
 					LOGGER.warn( "Removed unknown dimension: {}", read_dimension );
 				} else {
-					dimensions.add( dimension );
+					dimensions.add( registrykey );
 				}
 			} else {
 				LOGGER.warn( "Removed invalid dimension registry name {}", read_dimension );
@@ -104,8 +110,8 @@ public class ModConfig {
 		
 		ArrayList<String> registryNames = new ArrayList<>();
 		
-		for( DimensionType dimension : dimensions ) {
-			registryNames.add( Objects.requireNonNull( dimension.getRegistryName() ).toString() );
+		for( RegistryKey<World> dimension : dimensions ) {
+			registryNames.add( Objects.requireNonNull( dimension.func_240901_a_() ).toString() );
 		}
 		return registryNames;
 	}
@@ -150,12 +156,12 @@ public class ModConfig {
 		MORNING_MESSAGE.set( message );
 	}
 	
-	public static TreeSet<DimensionType> getDimensions() {
+	public static TreeSet<RegistryKey<World>> getDimensions() {
 		
 		return dimensions;
 	}
 	
-	public static void addDimension( DimensionType dimension ) {
+	public static void addDimension( RegistryKey<World> dimension ) {
 		
 		if( !dimensions.contains( dimension ) ) {
 			dimensions.add( dimension );
@@ -163,7 +169,7 @@ public class ModConfig {
 		}
 	}
 	
-	public static void removeDimension( DimensionType dimension ) {
+	public static void removeDimension( RegistryKey<World> dimension ) {
 		
 		if( dimensions.contains( dimension ) ) {
 			dimensions.remove( dimension );
