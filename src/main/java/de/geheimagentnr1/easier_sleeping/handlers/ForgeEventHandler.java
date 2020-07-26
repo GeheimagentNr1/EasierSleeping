@@ -5,6 +5,7 @@ import de.geheimagentnr1.easier_sleeping.elements.commands.SleepCommand;
 import de.geheimagentnr1.easier_sleeping.sleeping.SleepingManager;
 import de.geheimagentnr1.easier_sleeping.sleeping.SleepingWorker;
 import net.minecraftforge.common.WorldWorkerManager;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
@@ -18,9 +19,14 @@ public class ForgeEventHandler {
 	@SubscribeEvent
 	public static void handlerServerStartEvent( FMLServerStartingEvent event ) {
 		
-		SleepCommand.register( event.getCommandDispatcher() );
 		ModConfig.load();
 		SleepingManager.init();
 		WorldWorkerManager.addWorker( new SleepingWorker() );
+	}
+	
+	@SubscribeEvent
+	public static void handlerRegisterCommandsEvent( RegisterCommandsEvent event ) {
+		
+		SleepCommand.register( event.getDispatcher() );
 	}
 }
