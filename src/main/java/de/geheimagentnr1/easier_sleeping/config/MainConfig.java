@@ -1,19 +1,15 @@
 package de.geheimagentnr1.easier_sleeping.config;
 
-import com.electronwill.nightconfig.core.file.CommentedFileConfig;
-import com.electronwill.nightconfig.core.io.WritingMode;
-import de.geheimagentnr1.easier_sleeping.EasierSleeping;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.loading.FMLPaths;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
 
-public class ModConfig {
+public class MainConfig {
 	
 	
 	private static final Logger LOGGER = LogManager.getLogger();
@@ -22,7 +18,7 @@ public class ModConfig {
 	
 	private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 	
-	private static final ForgeConfigSpec CONFIG;
+	public static final ForgeConfigSpec CONFIG;
 	
 	private static final ForgeConfigSpec.IntValue SLEEP_PERCENT;
 	
@@ -60,14 +56,8 @@ public class ModConfig {
 		CONFIG = BUILDER.build();
 	}
 	
-	public static void load() {
+	public static void checkAndPrintConfig() {
 		
-		CommentedFileConfig configData = CommentedFileConfig.builder( FMLPaths.CONFIGDIR.get().resolve(
-			EasierSleeping.MODID + ".toml" ) ).sync().autosave().writingMode( WritingMode.REPLACE ).build();
-		
-		LOGGER.info( "Loading \"{}\" Config", mod_name );
-		configData.load();
-		CONFIG.setConfig( configData );
 		checkCorrectAndReadDimensions();
 		LOGGER.info( "{} = {}", SLEEP_PERCENT.getPath(), SLEEP_PERCENT.get() );
 		LOGGER.info( "{} = {}", SLEEP_MESSAGE.getPath(), SLEEP_MESSAGE.get() );
