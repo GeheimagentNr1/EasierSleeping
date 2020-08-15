@@ -6,7 +6,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import de.geheimagentnr1.easier_sleeping.config.ModConfig;
+import de.geheimagentnr1.easier_sleeping.config.MainConfig;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.command.arguments.DimensionArgument;
@@ -56,60 +56,60 @@ public class SleepCommand {
 	private static int showSleepPercent( CommandContext<CommandSource> context ) {
 		
 		context.getSource().sendFeedback( new StringTextComponent( "Sleep Percent: " )
-			.func_240702_b_( String.valueOf( ModConfig.getSleepPercent() ) ), false );
+			.func_240702_b_( String.valueOf( MainConfig.getSleepPercent() ) ), false );
 		return Command.SINGLE_SUCCESS;
 	}
 	
 	private static int changeSleepPercent( CommandContext<CommandSource> context ) {
 		
-		ModConfig.setSleepPercent( IntegerArgumentType.getInteger( context, "sleep_percent" ) );
+		MainConfig.setSleepPercent( IntegerArgumentType.getInteger( context, "sleep_percent" ) );
 		context.getSource().sendFeedback( new StringTextComponent( "Sleep Percent is now: " )
-			.func_240702_b_( String.valueOf( ModConfig.getSleepPercent() ) ), true );
+			.func_240702_b_( String.valueOf( MainConfig.getSleepPercent() ) ), true );
 		return Command.SINGLE_SUCCESS;
 	}
 	
 	private static int showWakeMessage( CommandContext<CommandSource> context ) {
 		
 		context.getSource().sendFeedback( new StringTextComponent( "Wake Message: " )
-			.func_240702_b_( ModConfig.getWakeMessage() ), false );
+			.func_240702_b_( MainConfig.getWakeMessage() ), false );
 		return Command.SINGLE_SUCCESS;
 	}
 	
 	private static int changeWakeMessage( CommandContext<CommandSource> context ) throws CommandSyntaxException {
 		
-		ModConfig.setWakeMessage( MessageArgument.getMessage( context, "message" ).getUnformattedComponentText() );
+		MainConfig.setWakeMessage( MessageArgument.getMessage( context, "message" ).getUnformattedComponentText() );
 		context.getSource().sendFeedback( new StringTextComponent( "Wake Message is now: " )
-			.func_240702_b_( ModConfig.getWakeMessage() ), true );
+			.func_240702_b_( MainConfig.getWakeMessage() ), true );
 		return Command.SINGLE_SUCCESS;
 	}
 	
 	private static int showSleepMessage( CommandContext<CommandSource> context ) {
 		
 		context.getSource().sendFeedback( new StringTextComponent( "Sleep Message: " )
-			.func_240702_b_( ModConfig.getSleepMessage() ), false );
+			.func_240702_b_( MainConfig.getSleepMessage() ), false );
 		return Command.SINGLE_SUCCESS;
 	}
 	
 	private static int changeSleepMessage( CommandContext<CommandSource> context ) throws CommandSyntaxException {
 		
-		ModConfig.setSleepMessage( MessageArgument.getMessage( context, "message" ).getUnformattedComponentText() );
+		MainConfig.setSleepMessage( MessageArgument.getMessage( context, "message" ).getUnformattedComponentText() );
 		context.getSource().sendFeedback( new StringTextComponent( "Sleep Message is now: " )
-			.func_240702_b_( ModConfig.getSleepMessage() ), true );
+			.func_240702_b_( MainConfig.getSleepMessage() ), true );
 		return Command.SINGLE_SUCCESS;
 	}
 	
 	private static int showMorningMessage( CommandContext<CommandSource> context ) {
 		
 		context.getSource().sendFeedback( new StringTextComponent( "Morning Message: " )
-			.func_240702_b_( ModConfig.getMorningMessage() ), false );
+			.func_240702_b_( MainConfig.getMorningMessage() ), false );
 		return Command.SINGLE_SUCCESS;
 	}
 	
 	private static int changeMorningMessage( CommandContext<CommandSource> context ) throws CommandSyntaxException {
 		
-		ModConfig.setMorningMessage( MessageArgument.getMessage( context, "message" ).getUnformattedComponentText() );
+		MainConfig.setMorningMessage( MessageArgument.getMessage( context, "message" ).getUnformattedComponentText() );
 		context.getSource().sendFeedback( new StringTextComponent( "Morning Message is now: " )
-			.func_240702_b_( ModConfig.getMorningMessage() ), true );
+			.func_240702_b_( MainConfig.getMorningMessage() ), true );
 		return Command.SINGLE_SUCCESS;
 	}
 	
@@ -118,7 +118,7 @@ public class SleepCommand {
 		CommandSource source = context.getSource();
 		
 		source.sendFeedback( new StringTextComponent( "Dimensions:" ), false );
-		for( RegistryKey<World> dimension : ModConfig.getDimensions() ) {
+		for( RegistryKey<World> dimension : MainConfig.getDimensions() ) {
 			source.sendFeedback( new StringTextComponent( " - " )
 				.func_240702_b_( String.valueOf( dimension.func_240901_a_() ) ), false );
 		}
@@ -128,7 +128,7 @@ public class SleepCommand {
 	private static int addDimension( CommandContext<CommandSource> context ) throws CommandSyntaxException {
 		
 		RegistryKey<World> dimension = DimensionArgument.getDimensionArgument( context, "dimension" ).func_234923_W_();
-		ModConfig.addDimension( dimension );
+		MainConfig.addDimension( dimension );
 		context.getSource().sendFeedback( new StringTextComponent( "Added Dimension: " )
 			.func_240702_b_( String.valueOf( dimension.func_240901_a_() ) ), true );
 		return Command.SINGLE_SUCCESS;
@@ -137,7 +137,7 @@ public class SleepCommand {
 	private static int removeDimension( CommandContext<CommandSource> context ) throws CommandSyntaxException {
 		
 		RegistryKey<World> dimension = DimensionArgument.getDimensionArgument( context, "dimension" ).func_234923_W_();
-		ModConfig.removeDimension( dimension );
+		MainConfig.removeDimension( dimension );
 		context.getSource().sendFeedback( new StringTextComponent( "Removed Dimension: " )
 			.func_240702_b_( String.valueOf( dimension.func_240901_a_() ) ), true );
 		return Command.SINGLE_SUCCESS;
