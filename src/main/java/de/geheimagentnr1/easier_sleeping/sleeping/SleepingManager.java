@@ -1,6 +1,6 @@
 package de.geheimagentnr1.easier_sleeping.sleeping;
 
-import de.geheimagentnr1.easier_sleeping.config.ModConfig;
+import de.geheimagentnr1.easier_sleeping.config.MainConfig;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
@@ -35,7 +35,7 @@ public class SleepingManager {
 	static void updateSleepingPlayers( MinecraftServer server ) {
 		
 		for( World world : server.getWorlds() ) {
-			if( !ModConfig.getDimensions().contains( world.getDimension().getType() ) ) {
+			if( !MainConfig.getDimensions().contains( world.getDimension().getType() ) ) {
 				continue;
 			}
 			TreeSet<PlayerEntity> sleeping_players = SLEEPING.get( world.getDimension().getType() );
@@ -56,7 +56,7 @@ public class SleepingManager {
 			}
 			int sleeping_percent = caculateSleepingPercent( countSleepingPlayers( sleeping_players ),
 				non_spectator_player_count );
-			if( sleeping_percent >= ModConfig.getSleepPercent() ||
+			if( sleeping_percent >= MainConfig.getSleepPercent() ||
 				non_spectator_player_count > 0 &&
 				non_spectator_player_count == sleeping_players.size() ) {
 				if( world.getGameRules().getBoolean( GameRules.DO_DAYLIGHT_CYCLE ) ) {
@@ -98,19 +98,19 @@ public class SleepingManager {
 		int sleep_player_count, int non_spectator_player_count, PlayerEntity wake_player ) {
 		
 		sendMessage( world, players, buildWakeSleepMessage( wake_player, sleep_player_count,
-			non_spectator_player_count, ModConfig.getWakeMessage() ) );
+			non_spectator_player_count, MainConfig.getWakeMessage() ) );
 	}
 	
 	private static void sendSleepMessage( World world, List<? extends PlayerEntity> players,
 		int sleep_player_count, int non_spectator_player_count, PlayerEntity wake_player ) {
 		
 		sendMessage( world, players, buildWakeSleepMessage( wake_player, sleep_player_count,
-			non_spectator_player_count, ModConfig.getSleepMessage() ) );
+			non_spectator_player_count, MainConfig.getSleepMessage() ) );
 	}
 	
 	private static void sendMorningMessage( World world, List<? extends PlayerEntity> players ) {
 		
-		sendMessage( world, players, new StringTextComponent( ModConfig.getMorningMessage() ) );
+		sendMessage( world, players, new StringTextComponent( MainConfig.getMorningMessage() ) );
 	}
 	
 	private static void sendMessage( World world, List<? extends PlayerEntity> players,
