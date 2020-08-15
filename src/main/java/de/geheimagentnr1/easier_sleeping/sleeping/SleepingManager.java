@@ -66,7 +66,7 @@ public class SleepingManager {
 				}
 				sleeping_players.forEach( player -> {
 					player.getBedPosition().ifPresent( pos ->
-						player.func_241153_a_( world.func_234923_W_(), pos, false, false ) );
+						player.func_242111_a( world.func_234923_W_(), pos, player.rotationYaw, false, false ) );
 					player.wakeUp();
 				} );
 				if( world.getGameRules().getBoolean( GameRules.DO_WEATHER_CYCLE ) ) {
