@@ -31,7 +31,8 @@ public class SleepingManager {
 		}
 	}
 	
-	public static void updateSleepingPlayers( MinecraftServer server ) {
+	//package-private
+	static void updateSleepingPlayers( MinecraftServer server ) {
 		
 		for( World world : server.getWorlds() ) {
 			if( !ModConfig.getDimensions().contains( world.getDimension().getType() ) ) {

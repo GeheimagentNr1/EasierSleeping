@@ -7,5 +7,5 @@ import net.minecraftforge.fml.common.Mod;
 public class EasierSleeping {
 	
 	
-	public final static String MODID = "easier_sleeping";
+	public static final String MODID = "easier_sleeping";
 }

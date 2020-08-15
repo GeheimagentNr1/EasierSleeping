@@ -16,25 +16,25 @@ import java.util.*;
 public class ModConfig {
 	
 	
-	private final static Logger LOGGER = LogManager.getLogger();
+	private static final Logger LOGGER = LogManager.getLogger();
 	
-	private final static String mod_name = "Easier Sleeping";
+	private static final String mod_name = "Easier Sleeping";
 	
-	private final static ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
+	private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 	
-	private final static ForgeConfigSpec CONFIG;
+	private static final ForgeConfigSpec CONFIG;
 	
-	private final static ForgeConfigSpec.IntValue SLEEP_PERCENT;
+	private static final ForgeConfigSpec.IntValue SLEEP_PERCENT;
 	
-	private final static ForgeConfigSpec.ConfigValue<String> SLEEP_MESSAGE;
+	private static final ForgeConfigSpec.ConfigValue<String> SLEEP_MESSAGE;
 	
-	private final static ForgeConfigSpec.ConfigValue<String> WAKE_MESSAGE;
+	private static final ForgeConfigSpec.ConfigValue<String> WAKE_MESSAGE;
 	
-	private final static ForgeConfigSpec.ConfigValue<String> MORNING_MESSAGE;
+	private static final ForgeConfigSpec.ConfigValue<String> MORNING_MESSAGE;
 	
-	private final static ForgeConfigSpec.ConfigValue<List<String>> DIMENSIONS;
+	private static final ForgeConfigSpec.ConfigValue<List<String>> DIMENSIONS;
 	
-	private final static TreeSet<DimensionType> dimensions = new TreeSet<>(
+	private static final TreeSet<DimensionType> dimensions = new TreeSet<>(
 		Comparator.comparingInt( DimensionType::getId ) );
 	
 	static {
