@@ -20,7 +20,7 @@ public class ModEventHandler {
 	
 	@SuppressWarnings( "unused" )
 	@SubscribeEvent
-	public static void onFileChange( ModConfig.ConfigReloading configEvent) {
+	public static void onFileChange( ModConfig.Reloading configEvent) {
 		
 		MainConfig.checkAndPrintConfig();
 	}
