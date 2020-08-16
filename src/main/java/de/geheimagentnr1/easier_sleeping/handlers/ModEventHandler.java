@@ -11,14 +11,12 @@ import net.minecraftforge.fml.config.ModConfig;
 public class ModEventHandler {
 	
 	
-	@SuppressWarnings( "unused" )
 	@SubscribeEvent
 	public static void handleModConfigLoadingEvent( ModConfig.Loading event ) {
 		
 		MainConfig.checkAndPrintConfig();
 	}
 	
-	@SuppressWarnings( "unused" )
 	@SubscribeEvent
 	public static void handleModConfigReloadingEvent( ModConfig.ConfigReloading event ) {
 		
