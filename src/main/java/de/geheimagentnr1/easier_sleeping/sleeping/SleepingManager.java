@@ -46,13 +46,11 @@ public class SleepingManager {
 			for( ServerPlayerEntity player : world_players ) {
 				if( player.isSleeping() && !sleeping_players.contains( player ) ) {
 					sleeping_players.add( player );
-					sendSleepMessage( world, world_players, sleeping_players.size(), non_spectator_player_count,
-						player );
+					sendSleepMessage( world_players, sleeping_players.size(), non_spectator_player_count, player );
 				} else {
 					if( !player.isSleeping() && sleeping_players.contains( player ) ) {
 						sleeping_players.remove( player );
-						sendWakeMessage( world, world_players, sleeping_players.size(), non_spectator_player_count,
-							player );
+						sendWakeMessage( world_players, sleeping_players.size(), non_spectator_player_count, player );
 					}
 				}
 			}
@@ -72,7 +70,7 @@ public class SleepingManager {
 				if( world.getGameRules().getBoolean( GameRules.DO_WEATHER_CYCLE ) ) {
 					world.func_241113_a_( 6000, 0, false, false );
 				}
-				sendMorningMessage( world, world_players );
+				sendMorningMessage( world_players );
 				sleeping_players.clear();
 			}
 		}
@@ -100,32 +98,30 @@ public class SleepingManager {
 		return count;
 	}
 	
-	private static void sendWakeMessage( ServerWorld world, List<? extends PlayerEntity> players,
-		int sleep_player_count, int non_spectator_player_count, PlayerEntity wake_player ) {
+	private static void sendWakeMessage( List<? extends PlayerEntity> players, int sleep_player_count,
+		int non_spectator_player_count, PlayerEntity wake_player ) {
 		
-		sendMessage( world, players, buildWakeSleepMessage( wake_player, sleep_player_count,
+		sendMessage( players, buildWakeSleepMessage( wake_player, sleep_player_count,
 			non_spectator_player_count, MainConfig.getWakeMessage() ) );
 	}
 	
-	private static void sendSleepMessage( ServerWorld world, List<? extends PlayerEntity> players,
-		int sleep_player_count, int non_spectator_player_count, PlayerEntity wake_player ) {
+	private static void sendSleepMessage( List<? extends PlayerEntity> players, int sleep_player_count,
+		int non_spectator_player_count, PlayerEntity wake_player ) {
 		
-		sendMessage( world, players, buildWakeSleepMessage( wake_player, sleep_player_count,
+		sendMessage( players, buildWakeSleepMessage( wake_player, sleep_player_count,
 			non_spectator_player_count, MainConfig.getSleepMessage() ) );
 	}
 	
-	private static void sendMorningMessage( ServerWorld world, List<? extends PlayerEntity> players ) {
+	private static void sendMorningMessage( List<? extends PlayerEntity> players ) {
 		
-		sendMessage( world, players, new StringTextComponent( MainConfig.getMorningMessage() ) );
+		sendMessage( players, new StringTextComponent( MainConfig.getMorningMessage() ) );
 	}
 	
-	private static void sendMessage( ServerWorld world, List<? extends PlayerEntity> players,
-		ITextComponent message ) {
+	private static void sendMessage( List<? extends PlayerEntity> players, ITextComponent message ) {
 		
 		for( PlayerEntity player : players ) {
 			player.sendMessage( message, Util.field_240973_b_ );
 		}
-		world.func_241113_a_( 6000, 0, false, false );
 	}
 	
 	private static ITextComponent buildWakeSleepMessage( PlayerEntity player, int sleep_player_count,
