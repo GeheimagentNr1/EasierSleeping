@@ -60,9 +60,9 @@ public class MainConfig {
 		CONFIG = BUILDER.build();
 	}
 	
-	public static void checkAndPrintConfig() {
+	public static void printConfig() {
 		
-		checkCorrectAndReadDimensions();
+		LOGGER.info( "Loading \"{}\" Config", mod_name );
 		LOGGER.info( "{} = {}", SLEEP_PERCENT.getPath(), SLEEP_PERCENT.get() );
 		LOGGER.info( "{} = {}", SLEEP_MESSAGE.getPath(), SLEEP_MESSAGE.get() );
 		LOGGER.info( "{} = {}", WAKE_MESSAGE.getPath(), WAKE_MESSAGE.get() );
@@ -71,7 +71,19 @@ public class MainConfig {
 		LOGGER.info( "\"{}\" Config loaded", mod_name );
 	}
 	
-	private static void checkCorrectAndReadDimensions() {
+	public static void checkAndPrintConfig() {
+		
+		if( checkCorrectAndReadDimensions() ) {
+			LOGGER.info( "\"{}\" Config corrected", mod_name );
+			LOGGER.info( "{} = {}", SLEEP_PERCENT.getPath(), SLEEP_PERCENT.get() );
+			LOGGER.info( "{} = {}", SLEEP_MESSAGE.getPath(), SLEEP_MESSAGE.get() );
+			LOGGER.info( "{} = {}", WAKE_MESSAGE.getPath(), WAKE_MESSAGE.get() );
+			LOGGER.info( "{} = {}", MORNING_MESSAGE.getPath(), MORNING_MESSAGE.get() );
+			LOGGER.info( "{} = {}", DIMENSIONS.getPath(), DIMENSIONS.get() );
+		}
+	}
+	
+	private static boolean checkCorrectAndReadDimensions() {
 		
 		ArrayList<String> read_dimensions = new ArrayList<>( DIMENSIONS.get() );
 		
@@ -93,7 +105,9 @@ public class MainConfig {
 		}
 		if( DIMENSIONS.get().size() != dimensions.size() ) {
 			DIMENSIONS.set( dimensionsToRegistryNameList() );
+			return true;
 		}
+		return false;
 	}
 	
 	private static ArrayList<String> dimensionsToRegistryNameList() {
