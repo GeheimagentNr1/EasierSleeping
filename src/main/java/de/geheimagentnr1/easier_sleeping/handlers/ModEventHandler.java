@@ -13,14 +13,14 @@ public class ModEventHandler {
 	
 	@SuppressWarnings( "unused" )
 	@SubscribeEvent
-	public static void onLoad( ModConfig.Loading configEvent) {
+	public static void onLoad( ModConfig.Loading configEvent ) {
 		
 		MainConfig.printConfig();
 	}
 	
 	@SuppressWarnings( "unused" )
 	@SubscribeEvent
-	public static void onFileChange( ModConfig.Reloading configEvent) {
+	public static void onFileChange( ModConfig.Reloading configEvent ) {
 		
 		MainConfig.printConfig();
 	}
