@@ -48,7 +48,7 @@ public class SleepCommand {
 			.then( Commands.literal( "remove" )
 				.then( Commands.argument( "dimension", DimensionArgument.getDimension() )
 					.executes( SleepCommand::removeDimension ) ) ) );
-
+		
 		dispatcher.register( sleep );
 	}
 	

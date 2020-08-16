@@ -59,6 +59,7 @@ public class MainConfig {
 	public static void checkAndPrintConfig() {
 		
 		checkCorrectAndReadDimensions();
+		LOGGER.info( "Loading \"{}\" Config", mod_name );
 		LOGGER.info( "{} = {}", SLEEP_PERCENT.getPath(), SLEEP_PERCENT.get() );
 		LOGGER.info( "{} = {}", SLEEP_MESSAGE.getPath(), SLEEP_MESSAGE.get() );
 		LOGGER.info( "{} = {}", WAKE_MESSAGE.getPath(), WAKE_MESSAGE.get() );
