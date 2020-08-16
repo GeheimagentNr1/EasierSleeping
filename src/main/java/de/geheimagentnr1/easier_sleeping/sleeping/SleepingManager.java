@@ -56,7 +56,7 @@ public class SleepingManager {
 				non_spectator_player_count );
 			if( sleeping_percent >= MainConfig.getSleepPercent() ||
 				non_spectator_player_count > 0 &&
-				non_spectator_player_count == sleeping_players.size() ) {
+					non_spectator_player_count == sleeping_players.size() ) {
 				if( world.getGameRules().getBoolean( GameRules.DO_DAYLIGHT_CYCLE ) ) {
 					world.setDayTime( 0 );
 				}
