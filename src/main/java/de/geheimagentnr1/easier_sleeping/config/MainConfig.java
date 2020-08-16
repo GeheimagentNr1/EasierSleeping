@@ -60,14 +60,19 @@ public class MainConfig {
 		CONFIG = BUILDER.build();
 	}
 	
-	public static void printConfig() {
+	private static void printConfig() {
 		
-		LOGGER.info( "Loading \"{}\" Config", mod_name );
 		LOGGER.info( "{} = {}", SLEEP_PERCENT.getPath(), SLEEP_PERCENT.get() );
 		LOGGER.info( "{} = {}", SLEEP_MESSAGE.getPath(), SLEEP_MESSAGE.get() );
 		LOGGER.info( "{} = {}", WAKE_MESSAGE.getPath(), WAKE_MESSAGE.get() );
 		LOGGER.info( "{} = {}", MORNING_MESSAGE.getPath(), MORNING_MESSAGE.get() );
 		LOGGER.info( "{} = {}", DIMENSIONS.getPath(), DIMENSIONS.get() );
+	}
+	
+	public static void printLoadedConfig() {
+		
+		LOGGER.info( "Loading \"{}\" Config", mod_name );
+		printConfig();
 		LOGGER.info( "\"{}\" Config loaded", mod_name );
 	}
 	
@@ -75,11 +80,7 @@ public class MainConfig {
 		
 		if( checkCorrectAndReadDimensions() ) {
 			LOGGER.info( "\"{}\" Config corrected", mod_name );
-			LOGGER.info( "{} = {}", SLEEP_PERCENT.getPath(), SLEEP_PERCENT.get() );
-			LOGGER.info( "{} = {}", SLEEP_MESSAGE.getPath(), SLEEP_MESSAGE.get() );
-			LOGGER.info( "{} = {}", WAKE_MESSAGE.getPath(), WAKE_MESSAGE.get() );
-			LOGGER.info( "{} = {}", MORNING_MESSAGE.getPath(), MORNING_MESSAGE.get() );
-			LOGGER.info( "{} = {}", DIMENSIONS.getPath(), DIMENSIONS.get() );
+			printConfig();
 		}
 	}
 	
