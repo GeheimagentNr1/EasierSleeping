@@ -1,11 +1,8 @@
 package de.geheimagentnr1.easier_sleeping.config;
 
-import com.mojang.serialization.Lifecycle;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.SimpleRegistry;
-import net.minecraft.world.Dimension;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.ForgeConfigSpec;
