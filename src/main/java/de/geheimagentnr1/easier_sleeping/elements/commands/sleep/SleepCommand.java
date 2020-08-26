@@ -53,7 +53,7 @@ public class SleepCommand {
 			.then( Commands.literal( "list_type" )
 				.executes( SleepCommand::showDimensionListType )
 				.then( Commands.argument( "list_type", DimensionListTypeArgument.dimensionListType() )
-					.then( Commands.argument( "revert_list", BoolArgumentType.bool() )
+					.then( Commands.argument( "invert_list", BoolArgumentType.bool() )
 						.executes( SleepCommand::changeDimensionListType ) ) ) ) );
 		
 		dispatcher.register( sleep );
@@ -162,11 +162,11 @@ public class SleepCommand {
 		
 		CommandSource source = context.getSource();
 		DimensionListType dimensionListType = DimensionListTypeArgument.getDimensionListType( context, "list_type" );
-		boolean revert = BoolArgumentType.getBool( context, "revert_list" );
+		boolean revert = BoolArgumentType.getBool( context, "invert_list" );
 		
 		MainConfig.setDimensionListType( dimensionListType );
 		if( revert ) {
-			MainConfig.revertDimensions();
+			MainConfig.invertDimensions();
 		}
 		source.sendFeedback( new StringTextComponent( "Dimension List Type set to: " )
 			.appendText( MainConfig.getDimensionListType().name() ), false );

@@ -114,7 +114,7 @@ public class MainConfig {
 		return registryNames;
 	}
 	
-	public static void revertDimensions() {
+	public static void invertDimensions() {
 		
 		ArrayList<String> newDimensionRegistryNames = new ArrayList<>();
 		
