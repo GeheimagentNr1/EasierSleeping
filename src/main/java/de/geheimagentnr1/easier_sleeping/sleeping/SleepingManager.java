@@ -1,5 +1,6 @@
 package de.geheimagentnr1.easier_sleeping.sleeping;
 
+import de.geheimagentnr1.easier_sleeping.config.DimensionListType;
 import de.geheimagentnr1.easier_sleeping.config.MainConfig;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -9,7 +10,6 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import java.util.Comparator;
 import java.util.List;
@@ -22,23 +22,27 @@ public class SleepingManager {
 	
 	private static TreeMap<DimensionType, TreeSet<PlayerEntity>> SLEEPING;
 	
+	private static final Comparator<PlayerEntity> PLAYER_COMPARATOR = Comparator.comparing( Entity::getUniqueID );
+	
 	public static void init() {
 		
 		SLEEPING = new TreeMap<>( Comparator.comparingInt( DimensionType::getId ) );
-		for( World world : ServerLifecycleHooks.getCurrentServer().getWorlds() ) {
-			SLEEPING.put( world.getDimension().getType(),
-				new TreeSet<>( Comparator.comparing( Entity::getUniqueID ) ) );
-		}
 	}
 	
 	//package-private
 	static void updateSleepingPlayers( MinecraftServer server ) {
 		
 		for( World world : server.getWorlds() ) {
-			if( !MainConfig.getDimensions().contains( world.getDimension().getType() ) ) {
+			DimensionType dimensionType = world.getDimension().getType();
+			boolean containsDimension = MainConfig.getDimensions().contains( dimensionType );
+			if( MainConfig.getDimensionListType() == DimensionListType.SLEEP_ACTIVE && !containsDimension ||
+				MainConfig.getDimensionListType() == DimensionListType.SLEEP_INACTIVE && containsDimension ) {
 				continue;
 			}
-			TreeSet<PlayerEntity> sleeping_players = SLEEPING.get( world.getDimension().getType() );
+			if( !SLEEPING.containsKey( dimensionType ) ) {
+				SLEEPING.put( dimensionType, new TreeSet<>( PLAYER_COMPARATOR ) );
+			}
+			TreeSet<PlayerEntity> sleeping_players = SLEEPING.get( dimensionType );
 			List<? extends PlayerEntity> world_players = world.getPlayers();
 			int non_spectator_player_count = countNonSpectatorPlayers( world_players );
 			for( PlayerEntity player : world_players ) {
