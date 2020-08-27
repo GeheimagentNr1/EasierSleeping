@@ -155,7 +155,7 @@ public class SleepCommand {
 		CommandSource source = context.getSource();
 		
 		source.sendFeedback( new StringTextComponent( "Dimension List Type: " )
-			.appendText( MainConfig.getDimensionListType().name() ), false );
+			.func_240702_b_( MainConfig.getDimensionListType().name() ), false );
 		return Command.SINGLE_SUCCESS;
 	}
 	
@@ -170,11 +170,11 @@ public class SleepCommand {
 			MainConfig.invertDimensions();
 		}
 		source.sendFeedback( new StringTextComponent( "Dimension List Type set to: " )
-			.appendText( MainConfig.getDimensionListType().name() ), false );
+			.func_240702_b_( MainConfig.getDimensionListType().name() ), false );
 		source.sendFeedback( new StringTextComponent( "Dimensions:" ), false );
-		for( DimensionType dimension : MainConfig.getDimensions() ) {
+		for( RegistryKey<World> dimension : MainConfig.getDimensions() ) {
 			source.sendFeedback( new StringTextComponent( " - " )
-				.appendText( String.valueOf( dimension.getRegistryName() ) ), false );
+				.func_240702_b_( String.valueOf( dimension.getRegistryName() ) ), false );
 		}
 		return Command.SINGLE_SUCCESS;
 	}

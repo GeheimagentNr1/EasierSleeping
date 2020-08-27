@@ -36,16 +36,16 @@ public class SleepingManager {
 	static void updateSleepingPlayers( MinecraftServer server ) {
 		
 		for( ServerWorld world : server.getWorlds() ) {
-			DimensionType dimensionType = world.func_234923_W_();
-			boolean containsDimension = MainConfig.getDimensions().contains( dimensionType );
+			RegistryKey<World> registrykey = world.func_234923_W_();
+			boolean containsDimension = MainConfig.getDimensions().contains( registrykey );
 			if( MainConfig.getDimensionListType() == DimensionListType.SLEEP_ACTIVE && !containsDimension ||
 				MainConfig.getDimensionListType() == DimensionListType.SLEEP_INACTIVE && containsDimension ) {
 				continue;
 			}
-			if( !SLEEPING.containsKey( dimensionType ) ) {
-				SLEEPING.put( dimensionType, new TreeSet<>( PLAYER_COMPARATOR ) );
+			if( !SLEEPING.containsKey( registrykey ) ) {
+				SLEEPING.put( registrykey, new TreeSet<>( PLAYER_COMPARATOR ) );
 			}
-			TreeSet<ServerPlayerEntity> sleeping_players = SLEEPING.get( dimensionType );
+			TreeSet<ServerPlayerEntity> sleeping_players = SLEEPING.get( registrykey );
 			List<ServerPlayerEntity> world_players = world.getPlayers();
 			int non_spectator_player_count = countNonSpectatorPlayers( world_players );
 			for( ServerPlayerEntity player : world_players ) {

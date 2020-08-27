@@ -139,10 +139,11 @@ public class MainConfig {
 		ArrayList<String> newDimensionRegistryNames = new ArrayList<>();
 		
 		synchronized( dimensions ) {
-			for( DimensionType dimensionType : DimensionType.getAll() ) {
-				if( !dimensions.contains( dimensionType ) ) {
+			for( ServerWorld serverworld : ServerLifecycleHooks.getCurrentServer().getWorlds() ) {
+				RegistryKey<World> registrykey = serverworld.func_234923_W_();
+				if( !dimensions.contains( registrykey ) ) {
 					newDimensionRegistryNames.add(
-						Objects.requireNonNull( dimensionType.getRegistryName() ).toString() );
+						Objects.requireNonNull( registrykey.getRegistryName() ).toString() );
 				}
 			}
 		}
