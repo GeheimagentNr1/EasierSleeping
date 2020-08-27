@@ -1,5 +1,6 @@
 package de.geheimagentnr1.easier_sleeping.sleeping;
 
+import de.geheimagentnr1.easier_sleeping.config.DimensionListType;
 import de.geheimagentnr1.easier_sleeping.config.MainConfig;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -12,7 +13,6 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import java.util.Comparator;
 import java.util.List;
@@ -25,22 +25,27 @@ public class SleepingManager {
 	
 	private static TreeMap<RegistryKey<World>, TreeSet<ServerPlayerEntity>> SLEEPING;
 	
+	private static final Comparator<PlayerEntity> PLAYER_COMPARATOR = Comparator.comparing( Entity::getUniqueID );
+	
 	public static void init() {
 		
 		SLEEPING = new TreeMap<>( Comparator.comparing( RegistryKey::func_240901_a_ ) );
-		for( World world : ServerLifecycleHooks.getCurrentServer().getWorlds() ) {
-			SLEEPING.put( world.func_234923_W_(), new TreeSet<>( Comparator.comparing( Entity::getUniqueID ) ) );
-		}
 	}
 	
 	//package-private
 	static void updateSleepingPlayers( MinecraftServer server ) {
 		
 		for( ServerWorld world : server.getWorlds() ) {
-			if( !MainConfig.getDimensions().contains( world.func_234923_W_() ) ) {
+			RegistryKey<World> registrykey = world.func_234923_W_();
+			boolean containsDimension = MainConfig.getDimensions().contains( registrykey );
+			if( MainConfig.getDimensionListType() == DimensionListType.SLEEP_ACTIVE && !containsDimension ||
+				MainConfig.getDimensionListType() == DimensionListType.SLEEP_INACTIVE && containsDimension ) {
 				continue;
 			}
-			TreeSet<ServerPlayerEntity> sleeping_players = SLEEPING.get( world.func_234923_W_() );
+			if( !SLEEPING.containsKey( registrykey ) ) {
+				SLEEPING.put( registrykey, new TreeSet<>( PLAYER_COMPARATOR ) );
+			}
+			TreeSet<ServerPlayerEntity> sleeping_players = SLEEPING.get( registrykey );
 			List<ServerPlayerEntity> world_players = world.getPlayers();
 			int non_spectator_player_count = countNonSpectatorPlayers( world_players );
 			for( ServerPlayerEntity player : world_players ) {
