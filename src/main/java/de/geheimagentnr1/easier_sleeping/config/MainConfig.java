@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.*;
 
 
+@SuppressWarnings( "SynchronizationOnStaticField" )
 public class MainConfig {
 	
 	
@@ -33,6 +34,8 @@ public class MainConfig {
 	private static final ForgeConfigSpec.ConfigValue<String> MORNING_MESSAGE;
 	
 	private static final ForgeConfigSpec.ConfigValue<List<String>> DIMENSIONS;
+	
+	private static final ForgeConfigSpec.EnumValue<DimensionListType> DIMENSION_LIST_TYPE;
 	
 	private static final TreeSet<RegistryKey<World>> dimensions = new TreeSet<>(
 		Comparator.comparing( RegistryKey::func_240901_a_ ) );
@@ -56,6 +59,11 @@ public class MainConfig {
 				}
 				return false;
 			} );
+		DIMENSION_LIST_TYPE = BUILDER.comment( "If dimension_list_type is set to SLEEP_ACTIVE, the dimension list is" +
+			" the list of dimensions in which the sleep voting is active." ).comment( "If dimension_list_type is " +
+			"set to SLEEP_INACTIVE, the dimension list is the list of dimensions in which the sleep voting is " +
+			"inactive." )
+			.defineEnum( "dimension_list_type", DimensionListType.SLEEP_ACTIVE );
 		
 		CONFIG = BUILDER.build();
 	}
@@ -67,6 +75,7 @@ public class MainConfig {
 		LOGGER.info( "{} = {}", WAKE_MESSAGE.getPath(), WAKE_MESSAGE.get() );
 		LOGGER.info( "{} = {}", MORNING_MESSAGE.getPath(), MORNING_MESSAGE.get() );
 		LOGGER.info( "{} = {}", DIMENSIONS.getPath(), DIMENSIONS.get() );
+		LOGGER.info( "{} = {}", DIMENSION_LIST_TYPE.getPath(), DIMENSION_LIST_TYPE.get() );
 	}
 	
 	public static void printLoadedConfig() {
@@ -88,25 +97,27 @@ public class MainConfig {
 		
 		ArrayList<String> read_dimensions = new ArrayList<>( DIMENSIONS.get() );
 		
-		dimensions.clear();
-		for( String read_dimension : read_dimensions ) {
-			ResourceLocation registry_name = ResourceLocation.tryCreate( read_dimension );
-			if( registry_name != null ) {
-				RegistryKey<World> registrykey = RegistryKey.func_240903_a_( Registry.field_239699_ae_,
-					registry_name );
-				ServerWorld serverworld = ServerLifecycleHooks.getCurrentServer().getWorld( registrykey );
-				if( serverworld == null ) {
-					LOGGER.warn( "Removed unknown dimension: {}", read_dimension );
+		synchronized( dimensions ) {
+			dimensions.clear();
+			for( String read_dimension : read_dimensions ) {
+				ResourceLocation registry_name = ResourceLocation.tryCreate( read_dimension );
+				if( registry_name != null ) {
+					RegistryKey<World> registrykey = RegistryKey.func_240903_a_( Registry.field_239699_ae_,
+						registry_name );
+					ServerWorld serverworld = ServerLifecycleHooks.getCurrentServer().getWorld( registrykey );
+					if( serverworld == null ) {
+						LOGGER.warn( "Removed unknown dimension: {}", read_dimension );
+					} else {
+						dimensions.add( registrykey );
+					}
 				} else {
-					dimensions.add( registrykey );
+					LOGGER.warn( "Removed invalid dimension registry name {}", read_dimension );
 				}
-			} else {
-				LOGGER.warn( "Removed invalid dimension registry name {}", read_dimension );
 			}
-		}
-		if( DIMENSIONS.get().size() != dimensions.size() ) {
-			DIMENSIONS.set( dimensionsToRegistryNameList() );
-			return true;
+			if( DIMENSIONS.get().size() != dimensions.size() ) {
+				DIMENSIONS.set( dimensionsToRegistryNameList() );
+				return true;
+			}
 		}
 		return false;
 	}
@@ -115,10 +126,29 @@ public class MainConfig {
 		
 		ArrayList<String> registryNames = new ArrayList<>();
 		
-		for( RegistryKey<World> dimension : dimensions ) {
-			registryNames.add( Objects.requireNonNull( dimension.func_240901_a_() ).toString() );
+		synchronized( dimensions ) {
+			for( RegistryKey<World> dimension : dimensions ) {
+				registryNames.add( Objects.requireNonNull( dimension.func_240901_a_() ).toString() );
+			}
 		}
 		return registryNames;
+	}
+	
+	public static void invertDimensions() {
+		
+		ArrayList<String> newDimensionRegistryNames = new ArrayList<>();
+		
+		synchronized( dimensions ) {
+			for( DimensionType dimensionType : DimensionType.getAll() ) {
+				if( !dimensions.contains( dimensionType ) ) {
+					newDimensionRegistryNames.add(
+						Objects.requireNonNull( dimensionType.getRegistryName() ).toString() );
+				}
+			}
+		}
+		newDimensionRegistryNames.sort( String::compareTo );
+		DIMENSIONS.set( newDimensionRegistryNames );
+		checkAndPrintConfig();
 	}
 	
 	public static int getSleepPercent() {
@@ -168,17 +198,31 @@ public class MainConfig {
 	
 	public static void addDimension( RegistryKey<World> dimension ) {
 		
-		if( !dimensions.contains( dimension ) ) {
-			dimensions.add( dimension );
-			DIMENSIONS.set( dimensionsToRegistryNameList() );
+		synchronized( dimensions ) {
+			if( !dimensions.contains( dimension ) ) {
+				dimensions.add( dimension );
+				DIMENSIONS.set( dimensionsToRegistryNameList() );
+			}
 		}
 	}
 	
 	public static void removeDimension( RegistryKey<World> dimension ) {
 		
-		if( dimensions.contains( dimension ) ) {
-			dimensions.remove( dimension );
-			DIMENSIONS.set( dimensionsToRegistryNameList() );
+		synchronized( dimensions ) {
+			if( dimensions.contains( dimension ) ) {
+				dimensions.remove( dimension );
+				DIMENSIONS.set( dimensionsToRegistryNameList() );
+			}
 		}
+	}
+	
+	public static DimensionListType getDimensionListType() {
+		
+		return DIMENSION_LIST_TYPE.get();
+	}
+	
+	public static void setDimensionListType( DimensionListType dimensionListType ) {
+		
+		DIMENSION_LIST_TYPE.set( dimensionListType );
 	}
 }
