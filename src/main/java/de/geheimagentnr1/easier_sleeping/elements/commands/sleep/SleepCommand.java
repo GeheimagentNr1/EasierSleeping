@@ -174,7 +174,7 @@ public class SleepCommand {
 		source.sendFeedback( new StringTextComponent( "Dimensions:" ), false );
 		for( RegistryKey<World> dimension : MainConfig.getDimensions() ) {
 			source.sendFeedback( new StringTextComponent( " - " )
-				.func_240702_b_( String.valueOf( dimension.getRegistryName() ) ), false );
+				.func_240702_b_( String.valueOf( dimension.func_240901_a_() ) ), false );
 		}
 		return Command.SINGLE_SUCCESS;
 	}
