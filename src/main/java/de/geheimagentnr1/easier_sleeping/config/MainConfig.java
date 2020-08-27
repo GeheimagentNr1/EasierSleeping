@@ -143,7 +143,7 @@ public class MainConfig {
 				RegistryKey<World> registrykey = serverworld.func_234923_W_();
 				if( !dimensions.contains( registrykey ) ) {
 					newDimensionRegistryNames.add(
-						Objects.requireNonNull( registrykey.getRegistryName() ).toString() );
+						Objects.requireNonNull( registrykey.func_240901_a_() ).toString() );
 				}
 			}
 		}
