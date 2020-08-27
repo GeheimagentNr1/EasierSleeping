@@ -1,11 +1,13 @@
-package de.geheimagentnr1.easier_sleeping.elements.commands;
+package de.geheimagentnr1.easier_sleeping.elements.commands.sleep;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import de.geheimagentnr1.easier_sleeping.config.DimensionListType;
 import de.geheimagentnr1.easier_sleeping.config.MainConfig;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
@@ -47,7 +49,12 @@ public class SleepCommand {
 					.executes( SleepCommand::addDimension ) ) )
 			.then( Commands.literal( "remove" )
 				.then( Commands.argument( "dimension", DimensionArgument.getDimension() )
-					.executes( SleepCommand::removeDimension ) ) ) );
+					.executes( SleepCommand::removeDimension ) ) )
+			.then( Commands.literal( "list_type" )
+				.executes( SleepCommand::showDimensionListType )
+				.then( Commands.argument( "list_type", DimensionListTypeArgument.dimensionListType() )
+					.then( Commands.argument( "invert_list", BoolArgumentType.bool() )
+						.executes( SleepCommand::changeDimensionListType ) ) ) ) );
 		
 		dispatcher.register( sleep );
 	}
@@ -139,6 +146,35 @@ public class SleepCommand {
 		MainConfig.removeDimension( dimension );
 		context.getSource().sendFeedback( new StringTextComponent( "Removed Dimension: " )
 			.appendText( String.valueOf( dimension.getRegistryName() ) ), true );
+		return Command.SINGLE_SUCCESS;
+	}
+	
+	private static int showDimensionListType( CommandContext<CommandSource> context ) {
+		
+		CommandSource source = context.getSource();
+		
+		source.sendFeedback( new StringTextComponent( "Dimension List Type: " )
+			.appendText( MainConfig.getDimensionListType().name() ), false );
+		return Command.SINGLE_SUCCESS;
+	}
+	
+	private static int changeDimensionListType( CommandContext<CommandSource> context ) {
+		
+		CommandSource source = context.getSource();
+		DimensionListType dimensionListType = DimensionListTypeArgument.getDimensionListType( context, "list_type" );
+		boolean revert = BoolArgumentType.getBool( context, "invert_list" );
+		
+		MainConfig.setDimensionListType( dimensionListType );
+		if( revert ) {
+			MainConfig.invertDimensions();
+		}
+		source.sendFeedback( new StringTextComponent( "Dimension List Type set to: " )
+			.appendText( MainConfig.getDimensionListType().name() ), false );
+		source.sendFeedback( new StringTextComponent( "Dimensions:" ), false );
+		for( DimensionType dimension : MainConfig.getDimensions() ) {
+			source.sendFeedback( new StringTextComponent( " - " )
+				.appendText( String.valueOf( dimension.getRegistryName() ) ), false );
+		}
 		return Command.SINGLE_SUCCESS;
 	}
 }

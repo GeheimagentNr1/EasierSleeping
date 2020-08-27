@@ -1,6 +1,6 @@
 package de.geheimagentnr1.easier_sleeping.handlers;
 
-import de.geheimagentnr1.easier_sleeping.elements.commands.SleepCommand;
+import de.geheimagentnr1.easier_sleeping.elements.commands.sleep.SleepCommand;
 import de.geheimagentnr1.easier_sleeping.sleeping.SleepingManager;
 import de.geheimagentnr1.easier_sleeping.sleeping.SleepingWorker;
 import net.minecraftforge.common.WorldWorkerManager;
