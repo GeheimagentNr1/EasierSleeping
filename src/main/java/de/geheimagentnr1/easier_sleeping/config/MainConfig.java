@@ -60,9 +60,9 @@ public class MainConfig {
 				return false;
 			} );
 		DIMENSION_LIST_TYPE = BUILDER.comment( "If dimension_list_type is set to SLEEP_ACTIVE, the dimension list is" +
-			" the list of dimensions in which the sleep voting is active." ).comment( "If dimension_list_type is " +
-			"set to SLEEP_INACTIVE, the dimension list is the list of dimensions in which the sleep voting is " +
-			"inactive." )
+			" the list of dimensions in which the sleep voting is active." + System.lineSeparator() +
+			"If dimension_list_type is set to SLEEP_INACTIVE, the dimension list is the list of dimensions in which " +
+			"the sleep voting is inactive." )
 			.defineEnum( "dimension_list_type", DimensionListType.SLEEP_ACTIVE );
 		
 		CONFIG = BUILDER.build();
