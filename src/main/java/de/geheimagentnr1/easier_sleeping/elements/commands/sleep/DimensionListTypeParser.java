@@ -57,10 +57,10 @@ class DimensionListTypeParser {
 		
 		int cursor = reader.getCursor();
 		
-		while(reader.canRead() && reader.peek() != ' ') {
+		while( reader.canRead() && reader.peek() != ' ' ) {
 			reader.skip();
 		}
-		String dimensionListTypeString = reader.getString().substring( cursor, reader.getCursor());
+		String dimensionListTypeString = reader.getString().substring( cursor, reader.getCursor() );
 		dimensionListType = getItemForRegistry( dimensionListTypeString ).orElseThrow( () -> {
 			reader.setCursor( cursor );
 			return DIMENSION_LIST_TYPE_INVALID.createWithContext( reader, dimensionListTypeString );
