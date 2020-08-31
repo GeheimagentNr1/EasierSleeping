@@ -46,7 +46,10 @@ public class MainConfig {
 			.define( "wake_message", "stood up." );
 		MORNING_MESSAGE = BUILDER.comment( "Message shown, if the night was skipped" )
 			.define( "morning_message", "Good Morning" );
-		DIMENSIONS = BUILDER.comment( "Dimensions in which, the sleeping percentage is activ." )
+		DIMENSIONS = BUILDER.comment( "If dimension_list_type is set to SLEEP_ACTIVE, the list is the list of " +
+			"dimensions in which the sleep voting is active." + System.lineSeparator() +
+			"If dimension_list_type is set to SLEEP_INACTIVE, the list is the list of dimensions in which the sleep " +
+			"voting is inactive." )
 			.define( "dimensions", Collections.singletonList(
 				Objects.requireNonNull( DimensionType.OVERWORLD.getRegistryName() ).toString() ), o -> {
 				if( o instanceof List<?> ) {
