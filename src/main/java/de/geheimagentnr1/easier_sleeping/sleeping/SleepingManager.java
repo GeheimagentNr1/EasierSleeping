@@ -29,14 +29,14 @@ public class SleepingManager {
 	
 	public static void init() {
 		
-		SLEEPING = new TreeMap<>( Comparator.comparing( RegistryKey::func_240901_a_ ) );
+		SLEEPING = new TreeMap<>( Comparator.comparing( RegistryKey::getLocation) );
 	}
 	
 	//package-private
 	static void updateSleepingPlayers( MinecraftServer server ) {
 		
 		for( ServerWorld world : server.getWorlds() ) {
-			RegistryKey<World> registrykey = world.func_234923_W_();
+			RegistryKey<World> registrykey = world.getDimensionKey();
 			boolean containsDimension = MainConfig.getDimensions().contains( registrykey );
 			if( MainConfig.getDimensionListType() == DimensionListType.SLEEP_ACTIVE && !containsDimension ||
 				MainConfig.getDimensionListType() == DimensionListType.SLEEP_INACTIVE && containsDimension ) {
@@ -65,11 +65,11 @@ public class SleepingManager {
 				non_spectator_player_count > 0 &&
 					non_spectator_player_count == sleeping_players.size() ) {
 				if( world.getGameRules().getBoolean( GameRules.DO_DAYLIGHT_CYCLE ) ) {
-					world.func_241114_a_( 0 );
+					world.setDayTime( 0 );
 				}
 				sleeping_players.forEach( player -> {
 					player.getBedPosition().ifPresent( pos ->
-						player.func_242111_a( world.func_234923_W_(), pos, player.rotationYaw, false, false ) );
+						player.func_242111_a( world.getDimensionKey(), pos, player.rotationYaw, false, false ) );
 					player.wakeUp();
 				} );
 				if( world.getGameRules().getBoolean( GameRules.DO_WEATHER_CYCLE ) ) {
@@ -125,19 +125,19 @@ public class SleepingManager {
 	private static void sendMessage( List<? extends PlayerEntity> players, ITextComponent message ) {
 		
 		for( PlayerEntity player : players ) {
-			player.sendMessage( message, Util.field_240973_b_ );
+			player.sendMessage( message, Util.DUMMY_UUID);
 		}
 	}
 	
 	private static ITextComponent buildWakeSleepMessage( PlayerEntity player, int sleep_player_count,
 		int player_count, String message ) {
 		
-		return new StringTextComponent( "" ).func_230529_a_( player.getDisplayName() )
-			.func_240702_b_( " " ).func_240702_b_( message ).func_240702_b_( " - " )
-			.func_240702_b_( String.valueOf( sleep_player_count ) ).func_240702_b_( "/" )
-			.func_240702_b_( String.valueOf( player_count ) ).func_240702_b_( " (" )
-			.func_240702_b_( String.valueOf( caculateSleepingPercent( sleep_player_count, player_count ) ) )
-			.func_240702_b_( "%)" );
+		return new StringTextComponent( "" ).append( player.getDisplayName() )
+			.appendString( " " ).appendString( message ).appendString( " - " )
+			.appendString( String.valueOf( sleep_player_count ) ).appendString( "/" )
+			.appendString( String.valueOf( player_count ) ).appendString( " (" )
+			.appendString( String.valueOf( caculateSleepingPercent( sleep_player_count, player_count ) ) )
+			.appendString( "%)" );
 	}
 	
 	private static int caculateSleepingPercent( int sleep_player_count, int non_spectator_player_count ) {

@@ -38,7 +38,7 @@ public class MainConfig {
 	private static final ForgeConfigSpec.EnumValue<DimensionListType> DIMENSION_LIST_TYPE;
 	
 	private static final TreeSet<RegistryKey<World>> dimensions = new TreeSet<>(
-		Comparator.comparing( RegistryKey::func_240901_a_ ) );
+		Comparator.comparing( RegistryKey::getLocation ) );
 	
 	static {
 		
@@ -55,7 +55,7 @@ public class MainConfig {
 			"If dimension_list_type is set to SLEEP_INACTIVE, the list is the list of dimensions in which the sleep " +
 			"voting is inactive." )
 			.define( "dimensions", Collections.singletonList(
-				Objects.requireNonNull( World.field_234918_g_.func_240901_a_() ).toString() ), o -> {
+				Objects.requireNonNull( World.OVERWORLD.getLocation() ).toString() ), o -> {
 				if( o instanceof List<?> ) {
 					List<?> list = (List<?>)o;
 					return list.isEmpty() || list.get( 0 ) instanceof String;
@@ -105,8 +105,7 @@ public class MainConfig {
 			for( String read_dimension : read_dimensions ) {
 				ResourceLocation registry_name = ResourceLocation.tryCreate( read_dimension );
 				if( registry_name != null ) {
-					RegistryKey<World> registrykey = RegistryKey.func_240903_a_( Registry.field_239699_ae_,
-						registry_name );
+					RegistryKey<World> registrykey = RegistryKey.getOrCreateKey( Registry.WORLD_KEY, registry_name );
 					ServerWorld serverworld = ServerLifecycleHooks.getCurrentServer().getWorld( registrykey );
 					if( serverworld == null ) {
 						LOGGER.warn( "Removed unknown dimension: {}", read_dimension );
@@ -131,7 +130,7 @@ public class MainConfig {
 		
 		synchronized( dimensions ) {
 			for( RegistryKey<World> dimension : dimensions ) {
-				registryNames.add( Objects.requireNonNull( dimension.func_240901_a_() ).toString() );
+				registryNames.add( Objects.requireNonNull( dimension.getLocation() ).toString() );
 			}
 		}
 		return registryNames;
@@ -143,10 +142,9 @@ public class MainConfig {
 		
 		synchronized( dimensions ) {
 			for( ServerWorld serverworld : ServerLifecycleHooks.getCurrentServer().getWorlds() ) {
-				RegistryKey<World> registrykey = serverworld.func_234923_W_();
+				RegistryKey<World> registrykey = serverworld.getDimensionKey();
 				if( !dimensions.contains( registrykey ) ) {
-					newDimensionRegistryNames.add(
-						Objects.requireNonNull( registrykey.func_240901_a_() ).toString() );
+					newDimensionRegistryNames.add( Objects.requireNonNull( registrykey.getLocation() ).toString() );
 				}
 			}
 		}
