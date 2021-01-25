@@ -67,7 +67,8 @@ public class SleepingManager {
 					long currentDayTime = world.getDayTime();
 					long newDayTime = currentDayTime + 24000L - currentDayTime % 24000L;
 					if( world instanceof ServerWorld ) {
-						newDayTime = ForgeEventFactory.onSleepFinished((ServerWorld)world, newDayTime, currentDayTime);
+						newDayTime = ForgeEventFactory.onSleepFinished( (ServerWorld)world, newDayTime,
+							currentDayTime );
 					}
 					world.setDayTime( newDayTime );
 				}
