@@ -10,6 +10,8 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.event.ForgeEventFactory;
 
 import java.util.Comparator;
 import java.util.List;
@@ -62,7 +64,13 @@ public class SleepingManager {
 				non_spectator_player_count > 0 &&
 					non_spectator_player_count == sleeping_players.size() ) {
 				if( world.getGameRules().getBoolean( GameRules.DO_DAYLIGHT_CYCLE ) ) {
-					world.setDayTime( 0 );
+					long currentDayTime = world.getDayTime();
+					long newDayTime = currentDayTime + 24000L - currentDayTime % 24000L;
+					if( world instanceof ServerWorld ) {
+						newDayTime = ForgeEventFactory.onSleepFinished( (ServerWorld)world, newDayTime,
+							currentDayTime );
+					}
+					world.setDayTime( newDayTime );
 				}
 				sleeping_players.forEach( player -> {
 					player.setSpawnPoint( player.getBedLocation( player.dimension ), false, false, player.dimension );
