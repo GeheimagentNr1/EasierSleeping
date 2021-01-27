@@ -13,7 +13,6 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.ForgeEventFactory;
 
 import java.util.Comparator;
@@ -69,10 +68,7 @@ public class SleepingManager {
 				if( world.getGameRules().getBoolean( GameRules.DO_DAYLIGHT_CYCLE ) ) {
 					long currentDayTime = world.getDayTime();
 					long newDayTime = currentDayTime + 24000L - currentDayTime % 24000L;
-					if( world instanceof ServerWorld ) {
-						newDayTime = ForgeEventFactory.onSleepFinished( (ServerWorld)world, newDayTime,
-							currentDayTime );
-					}
+					newDayTime = ForgeEventFactory.onSleepFinished( world, newDayTime, currentDayTime );
 					world.func_241114_a_( newDayTime );
 				}
 				sleeping_players.forEach( player -> {
@@ -81,7 +77,7 @@ public class SleepingManager {
 					player.wakeUp();
 				} );
 				if( world.getGameRules().getBoolean( GameRules.DO_WEATHER_CYCLE ) ) {
-					world.func_241113_a_( 6000, 0, false, false );
+					world.func_241113_a_( 0, 0, false, false );
 				}
 				sendMorningMessage( world_players );
 				sleeping_players.clear();
