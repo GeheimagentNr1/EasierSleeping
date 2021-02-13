@@ -30,7 +30,7 @@ public class SleepingManager {
 	
 	public static void init() {
 		
-		SLEEPING = new TreeMap<>( Comparator.comparing( RegistryKey::getLocation) );
+		SLEEPING = new TreeMap<>( Comparator.comparing( RegistryKey::getLocation ) );
 	}
 	
 	//package-private
@@ -151,7 +151,7 @@ public class SleepingManager {
 	private static void sendMessage( List<? extends PlayerEntity> players, ITextComponent message ) {
 		
 		for( PlayerEntity player : players ) {
-			player.sendMessage( message, Util.DUMMY_UUID);
+			player.sendMessage( message, Util.DUMMY_UUID );
 		}
 	}
 	
