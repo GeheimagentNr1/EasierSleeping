@@ -165,8 +165,11 @@ public class SleepCommand {
 		
 		RegistryKey<World> dimension = DimensionArgument.getDimensionArgument( context, "dimension" ).func_234923_W_();
 		MainConfig.addDimension( dimension );
-		context.getSource().sendFeedback( new StringTextComponent( "Added Dimension: " ).func_240702_b_( String.valueOf(
-			dimension.func_240901_a_() ) ), true );
+		context.getSource().sendFeedback(
+			new StringTextComponent( "Added Dimension: " )
+				.func_240702_b_( String.valueOf( dimension.func_240901_a_() ) ),
+			true
+		);
 		return Command.SINGLE_SUCCESS;
 	}
 	
@@ -174,8 +177,12 @@ public class SleepCommand {
 		
 		RegistryKey<World> dimension = DimensionArgument.getDimensionArgument( context, "dimension" ).func_234923_W_();
 		MainConfig.removeDimension( dimension );
-		context.getSource().sendFeedback( new StringTextComponent( "Removed Dimension: " ).func_240702_b_( String.valueOf(
-			dimension.func_240901_a_() ) ), true );
+		context.getSource()
+			.sendFeedback(
+				new StringTextComponent( "Removed Dimension: " )
+					.func_240702_b_( String.valueOf( dimension.func_240901_a_() ) ),
+				true
+			);
 		return Command.SINGLE_SUCCESS;
 	}
 	
@@ -199,8 +206,8 @@ public class SleepCommand {
 			MainConfig.invertDimensions();
 		}
 		source.sendFeedback(
-			new StringTextComponent( "Dimension List Type set to: " ).func_240702_b_( MainConfig.getDimensionListType()
-				.name() ),
+			new StringTextComponent( "Dimension List Type set to: " )
+				.func_240702_b_( MainConfig.getDimensionListType().name() ),
 			false
 		);
 		source.sendFeedback( new StringTextComponent( "Dimensions:" ), false );
