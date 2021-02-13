@@ -11,8 +11,10 @@ public class ModArgumentTypes {
 	
 	public static void registerArgumentTypes() {
 		
-		ArgumentTypes.register( EasierSleeping.MODID + ":" + DimensionListTypeArgument.registry_name,
+		ArgumentTypes.register(
+			EasierSleeping.MODID + ":" + DimensionListTypeArgument.registry_name,
 			DimensionListTypeArgument.class,
-			new ArgumentSerializer<>( DimensionListTypeArgument::dimensionListType ) );
+			new ArgumentSerializer<>( DimensionListTypeArgument::dimensionListType )
+		);
 	}
 }
