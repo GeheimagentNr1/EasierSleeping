@@ -37,23 +37,35 @@ public class MainConfig {
 	
 	private static final ForgeConfigSpec.EnumValue<DimensionListType> DIMENSION_LIST_TYPE;
 	
-	private static final TreeSet<RegistryKey<World>> dimensions = new TreeSet<>(
-		Comparator.comparing( RegistryKey::getLocation ) );
+	private static final TreeSet<RegistryKey<World>> dimensions =
+		new TreeSet<>( Comparator.comparing( RegistryKey::getLocation ) );
 	
 	static {
 		
-		SLEEP_PERCENT = BUILDER.comment( "Percentage of players required to skip the night." )
-			.defineInRange( "sleep_percent", 50, 0, 100 );
-		SLEEP_MESSAGE = BUILDER.comment( "Message shown, if a player goes to bed" )
-			.define( "sleep_message", "is now in bed." );
-		WAKE_MESSAGE = BUILDER.comment( "Message shown, if a player leaves his bed" )
-			.define( "wake_message", "stood up." );
-		MORNING_MESSAGE = BUILDER.comment( "Message shown, if the night was skipped" )
-			.define( "morning_message", "Good Morning" );
-		DIMENSIONS = BUILDER.comment( "If dimension_list_type is set to SLEEP_ACTIVE, the list is the list of " +
-			"dimensions in which the sleep voting is active." + System.lineSeparator() +
-			"If dimension_list_type is set to SLEEP_INACTIVE, the list is the list of dimensions in which the sleep " +
-			"voting is inactive." )
+		SLEEP_PERCENT = BUILDER.comment( "Percentage of players required to skip the night." ).defineInRange(
+			"sleep_percent",
+			50,
+			0,
+			100
+		);
+		SLEEP_MESSAGE = BUILDER.comment( "Message shown, if a player goes to bed" ).define(
+			"sleep_message",
+			"is now in bed."
+		);
+		WAKE_MESSAGE = BUILDER.comment( "Message shown, if a player leaves his bed" ).define(
+			"wake_message",
+			"stood up."
+		);
+		MORNING_MESSAGE = BUILDER.comment( "Message shown, if the night was skipped" ).define(
+			"morning_message",
+			"Good Morning"
+		);
+		DIMENSIONS = BUILDER.comment(
+			"If dimension_list_type is set to SLEEP_ACTIVE, the list is the list of dimensions in which the sleep " +
+				"voting is active." +
+				System.lineSeparator() +
+				"If dimension_list_type is set to SLEEP_INACTIVE, the list is the list of dimensions in which the " +
+				"sleep voting is inactive." )
 			.define( "dimensions", Collections.singletonList(
 				Objects.requireNonNull( World.OVERWORLD.getLocation() ).toString() ), o -> {
 				if( o instanceof List<?> ) {
@@ -62,10 +74,12 @@ public class MainConfig {
 				}
 				return false;
 			} );
-		DIMENSION_LIST_TYPE = BUILDER.comment( "If dimension_list_type is set to SLEEP_ACTIVE, the dimension list is" +
-			" the list of dimensions in which the sleep voting is active." + System.lineSeparator() +
-			"If dimension_list_type is set to SLEEP_INACTIVE, the dimension list is the list of dimensions in which " +
-			"the sleep voting is inactive." )
+		DIMENSION_LIST_TYPE = BUILDER.comment(
+			"If dimension_list_type is set to SLEEP_ACTIVE, the dimension list is the list of dimensions in which " +
+				"the sleep voting is active." +
+				System.lineSeparator() +
+				"If dimension_list_type is set to SLEEP_INACTIVE, the dimension list is the list of dimensions in " +
+				"which the sleep voting is inactive." )
 			.defineEnum( "dimension_list_type", DimensionListType.SLEEP_ACTIVE );
 		
 		CONFIG = BUILDER.build();
