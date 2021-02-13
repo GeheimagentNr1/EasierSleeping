@@ -58,8 +58,10 @@ public class SleepingManager {
 					}
 				}
 			}
-			int sleeping_percent = caculateSleepingPercent( countSleepingPlayers( sleeping_players ),
-				non_spectator_player_count );
+			int sleeping_percent = caculateSleepingPercent(
+				countSleepingPlayers( sleeping_players ),
+				non_spectator_player_count
+			);
 			if( sleeping_percent >= MainConfig.getSleepPercent() ||
 				non_spectator_player_count > 0 &&
 					non_spectator_player_count == sleeping_players.size() ) {
@@ -68,7 +70,8 @@ public class SleepingManager {
 					long newDayTime = currentDayTime + 24000L - currentDayTime % 24000L;
 					if( world instanceof ServerWorld ) {
 						newDayTime = ForgeEventFactory.onSleepFinished( (ServerWorld)world, newDayTime,
-							currentDayTime );
+							currentDayTime
+						);
 					}
 					world.setDayTime( newDayTime );
 				}
@@ -104,18 +107,38 @@ public class SleepingManager {
 		return count;
 	}
 	
-	private static void sendWakeMessage( List<? extends PlayerEntity> players, int sleep_player_count,
-		int non_spectator_player_count, PlayerEntity wake_player ) {
+	private static void sendWakeMessage(
+		List<? extends PlayerEntity> players,
+		int sleep_player_count,
+		int non_spectator_player_count,
+		PlayerEntity wake_player ) {
 		
-		sendMessage( players, buildWakeSleepMessage( wake_player, sleep_player_count,
-			non_spectator_player_count, MainConfig.getWakeMessage() ) );
+		sendMessage(
+			players,
+			buildWakeSleepMessage(
+				wake_player,
+				sleep_player_count,
+				non_spectator_player_count,
+				MainConfig.getWakeMessage()
+			)
+		);
 	}
 	
-	private static void sendSleepMessage( List<? extends PlayerEntity> players, int sleep_player_count,
-		int non_spectator_player_count, PlayerEntity wake_player ) {
+	private static void sendSleepMessage(
+		List<? extends PlayerEntity> players,
+		int sleep_player_count,
+		int non_spectator_player_count,
+		PlayerEntity wake_player ) {
 		
-		sendMessage( players, buildWakeSleepMessage( wake_player, sleep_player_count,
-			non_spectator_player_count, MainConfig.getSleepMessage() ) );
+		sendMessage(
+			players,
+			buildWakeSleepMessage(
+				wake_player,
+				sleep_player_count,
+				non_spectator_player_count,
+				MainConfig.getSleepMessage()
+			)
+		);
 	}
 	
 	private static void sendMorningMessage( List<? extends PlayerEntity> players ) {
@@ -130,12 +153,20 @@ public class SleepingManager {
 		}
 	}
 	
-	private static ITextComponent buildWakeSleepMessage( PlayerEntity player, int sleep_player_count,
-		int player_count, String message ) {
+	private static ITextComponent buildWakeSleepMessage(
+		PlayerEntity player,
+		int sleep_player_count,
+		int player_count,
+		String message ) {
 		
-		return player.getDisplayName().appendText( " " ).appendText( message ).appendText( " - " )
-			.appendText( String.valueOf( sleep_player_count ) ).appendText( "/" )
-			.appendText( String.valueOf( player_count ) ).appendText( " (" )
+		return player.getDisplayName()
+			.appendText( " " )
+			.appendText( message )
+			.appendText( " - " )
+			.appendText( String.valueOf( sleep_player_count ) )
+			.appendText( "/" )
+			.appendText( String.valueOf( player_count ) )
+			.appendText( " (" )
 			.appendText( String.valueOf( caculateSleepingPercent( sleep_player_count, player_count ) ) )
 			.appendText( "%)" );
 	}
