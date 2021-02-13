@@ -18,8 +18,10 @@ public class DimensionListTypeArgument implements ArgumentType<DimensionListType
 	
 	public static final String registry_name = "dimension_list_type";
 	
-	private static final Collection<String> EXAMPLES = Arrays.asList( DimensionListType.SLEEP_ACTIVE.name(),
-		DimensionListType.SLEEP_INACTIVE.name() );
+	private static final Collection<String> EXAMPLES = Arrays.asList(
+		DimensionListType.SLEEP_ACTIVE.name(),
+		DimensionListType.SLEEP_INACTIVE.name()
+	);
 	
 	public static DimensionListTypeArgument dimensionListType() {
 		
@@ -41,7 +43,8 @@ public class DimensionListTypeArgument implements ArgumentType<DimensionListType
 	}
 	
 	@Override
-	public <S> CompletableFuture<Suggestions> listSuggestions( CommandContext<S> context,
+	public <S> CompletableFuture<Suggestions> listSuggestions(
+		CommandContext<S> context,
 		SuggestionsBuilder builder ) {
 		
 		StringReader reader = new StringReader( builder.getInput() );
