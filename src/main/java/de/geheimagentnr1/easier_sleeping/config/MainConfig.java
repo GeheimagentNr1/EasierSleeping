@@ -71,9 +71,8 @@ public class MainConfig {
 				return false;
 			} );
 		DIMENSION_LIST_TYPE = BUILDER.comment(
-			"If dimension_list_type is set to SLEEP_ACTIVE, the dimension list is the list of dimensions in which the" +
-				" " +
-				"sleep voting is active." +
+			"If dimension_list_type is set to SLEEP_ACTIVE, the dimension list is the list of dimensions in which " +
+				"the sleep voting is active." +
 				System.lineSeparator() +
 				"If dimension_list_type is set to SLEEP_INACTIVE, the dimension list is the list of dimensions in " +
 				"which the sleep voting is inactive." )
