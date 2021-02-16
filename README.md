@@ -1,4 +1,4 @@
-# EasierSleeping
+# Easier Sleeping
 
 This is a Minecraft Forge mod.  
 A mod description can be found on [CurseForge](https://www.curseforge.com/minecraft/mc-mods/easier-sleeping).  
