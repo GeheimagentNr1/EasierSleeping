@@ -20,7 +20,7 @@ public class EasierSleeping {
 	public EasierSleeping() {
 		
 		ModArgumentTypes.registerArgumentTypes();
-		ModLoadingContext.get().registerConfig( ModConfig.Type.COMMON, MainConfig.CONFIG, MODID + ".toml" );
+		ModLoadingContext.get().registerConfig( ModConfig.Type.SERVER, MainConfig.CONFIG );
 		ModLoadingContext.get().registerExtensionPoint(
 			ExtensionPoint.DISPLAYTEST,
 			() -> Pair.of( () -> FMLNetworkConstants.IGNORESERVERONLY, ( remote, isServer ) -> true )
