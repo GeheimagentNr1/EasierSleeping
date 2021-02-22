@@ -162,10 +162,10 @@ public class ServerConfig {
 		
 		ArrayList<String> newDimensionRegistryNames = new ArrayList<>();
 		
-			for( ServerWorld serverworld : ServerLifecycleHooks.getCurrentServer().getWorlds() ) {
-				RegistryKey<World> registrykey = serverworld.getDimensionKey();
-				if( !dimensions.contains( registrykey ) ) {
-					newDimensionRegistryNames.add( Objects.requireNonNull( registrykey.getLocation() ).toString() );
+		for( ServerWorld serverworld : ServerLifecycleHooks.getCurrentServer().getWorlds() ) {
+			RegistryKey<World> registrykey = serverworld.getDimensionKey();
+			if( !dimensions.contains( registrykey ) ) {
+				newDimensionRegistryNames.add( Objects.requireNonNull( registrykey.getLocation() ).toString() );
 				
 			}
 		}
