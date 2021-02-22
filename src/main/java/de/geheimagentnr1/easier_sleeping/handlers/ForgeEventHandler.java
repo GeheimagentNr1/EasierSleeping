@@ -1,6 +1,7 @@
 package de.geheimagentnr1.easier_sleeping.handlers;
 
 import de.geheimagentnr1.easier_sleeping.config.MainConfig;
+import de.geheimagentnr1.easier_sleeping.elements.commands.ModArgumentTypes;
 import de.geheimagentnr1.easier_sleeping.elements.commands.sleep.SleepCommand;
 import de.geheimagentnr1.easier_sleeping.sleeping.SleepingManager;
 import de.geheimagentnr1.easier_sleeping.sleeping.SleepingWorker;
@@ -11,7 +12,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 
 
-@SuppressWarnings( "unused" )
 @Mod.EventBusSubscriber( bus = Mod.EventBusSubscriber.Bus.FORGE )
 public class ForgeEventHandler {
 	
@@ -27,6 +27,7 @@ public class ForgeEventHandler {
 	@SubscribeEvent
 	public static void handlerRegisterCommandsEvent( RegisterCommandsEvent event ) {
 		
+		ModArgumentTypes.registerArgumentTypes();
 		SleepCommand.register( event.getDispatcher() );
 	}
 }

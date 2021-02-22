@@ -1,13 +1,14 @@
 package de.geheimagentnr1.easier_sleeping.sleeping;
 
 import de.geheimagentnr1.easier_sleeping.config.DimensionListType;
-import de.geheimagentnr1.easier_sleeping.config.MainConfig;
+import de.geheimagentnr1.easier_sleeping.config.ServerConfig;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.Util;
+import net.minecraft.stats.Stats;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.GameRules;
@@ -38,9 +39,9 @@ public class SleepingManager {
 		
 		for( ServerWorld world : server.getWorlds() ) {
 			RegistryKey<World> registrykey = world.func_234923_W_();
-			boolean containsDimension = MainConfig.getDimensions().contains( registrykey );
-			if( MainConfig.getDimensionListType() == DimensionListType.SLEEP_ACTIVE && !containsDimension ||
-				MainConfig.getDimensionListType() == DimensionListType.SLEEP_INACTIVE && containsDimension ) {
+			boolean containsDimension = ServerConfig.getDimensions().contains( registrykey );
+			if( ServerConfig.getDimensionListType() == DimensionListType.SLEEP_ACTIVE && !containsDimension ||
+				ServerConfig.getDimensionListType() == DimensionListType.SLEEP_INACTIVE && containsDimension ) {
 				continue;
 			}
 			if( !SLEEPING.containsKey( registrykey ) ) {
@@ -64,7 +65,7 @@ public class SleepingManager {
 				countSleepingPlayers( sleeping_players ),
 				non_spectator_player_count
 			);
-			if( sleeping_percent >= MainConfig.getSleepPercent() ||
+			if( sleeping_percent >= ServerConfig.getSleepPercent() ||
 				non_spectator_player_count > 0 &&
 					non_spectator_player_count == sleeping_players.size() ) {
 				if( world.getGameRules().getBoolean( GameRules.DO_DAYLIGHT_CYCLE ) ) {
@@ -80,6 +81,11 @@ public class SleepingManager {
 				} );
 				if( world.getGameRules().getBoolean( GameRules.DO_WEATHER_CYCLE ) ) {
 					world.func_241113_a_( 0, 0, false, false );
+				}
+				if( ServerConfig.getAllPlayersRest() ) {
+					world_players.forEach(
+						playerEntity -> playerEntity.takeStat( Stats.CUSTOM.get( Stats.TIME_SINCE_REST ) )
+					);
 				}
 				sendMorningMessage( world_players );
 				sleeping_players.clear();
@@ -121,7 +127,7 @@ public class SleepingManager {
 				wake_player,
 				sleep_player_count,
 				non_spectator_player_count,
-				MainConfig.getWakeMessage()
+				ServerConfig.getWakeMessage()
 			)
 		);
 	}
@@ -138,14 +144,14 @@ public class SleepingManager {
 				wake_player,
 				sleep_player_count,
 				non_spectator_player_count,
-				MainConfig.getSleepMessage()
+				ServerConfig.getSleepMessage()
 			)
 		);
 	}
 	
 	private static void sendMorningMessage( List<? extends PlayerEntity> players ) {
 		
-		sendMessage( players, new StringTextComponent( MainConfig.getMorningMessage() ) );
+		sendMessage( players, new StringTextComponent( ServerConfig.getMorningMessage() ) );
 	}
 	
 	private static void sendMessage( List<? extends PlayerEntity> players, ITextComponent message ) {

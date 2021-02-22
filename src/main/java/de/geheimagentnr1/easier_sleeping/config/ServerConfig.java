@@ -7,19 +7,19 @@ import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.fml.ModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
 
-@SuppressWarnings( "SynchronizationOnStaticField" )
-public class MainConfig {
+public class ServerConfig {
 	
 	
 	private static final Logger LOGGER = LogManager.getLogger();
 	
-	private static final String mod_name = "Easier Sleeping";
+	private static final String MOD_NAME = ModLoadingContext.get().getActiveContainer().getModInfo().getDisplayName();
 	
 	private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 	
@@ -32,6 +32,8 @@ public class MainConfig {
 	private static final ForgeConfigSpec.ConfigValue<String> WAKE_MESSAGE;
 	
 	private static final ForgeConfigSpec.ConfigValue<String> MORNING_MESSAGE;
+	
+	private static final ForgeConfigSpec.BooleanValue ALL_PLAYERS_REST;
 	
 	private static final ForgeConfigSpec.ConfigValue<List<String>> DIMENSIONS;
 	
@@ -60,6 +62,13 @@ public class MainConfig {
 			"morning_message",
 			"Good Morning"
 		);
+		ALL_PLAYERS_REST = BUILDER.comment(
+			"If true, the time since last rest is reset for all players, if enough other players are successfully " +
+				"sleeping. So not every player has to sleep to prevent phantom spawning for him." )
+			.define(
+				"all_players_rest",
+				false
+			);
 		DIMENSIONS = BUILDER.comment(
 			"If dimension_list_type is set to SLEEP_ACTIVE, the list is the list of dimensions in which the sleep " +
 				"voting is active." +
@@ -99,10 +108,10 @@ public class MainConfig {
 		
 		LOGGER.info( "Loading \"{}\" Config", mod_name );
 		printConfig();
-		LOGGER.info( "\"{}\" Config loaded", mod_name );
+		LOGGER.info( "\"{}\" Config loaded", MOD_NAME );
 	}
 	
-	public static void checkAndPrintConfig() {
+	public static synchronized void checkAndPrintConfig() {
 		
 		if( checkCorrectAndReadDimensions() ) {
 			LOGGER.info( "\"{}\" Config corrected", mod_name );
@@ -110,11 +119,10 @@ public class MainConfig {
 		}
 	}
 	
-	private static boolean checkCorrectAndReadDimensions() {
+	private static synchronized boolean checkCorrectAndReadDimensions() {
 		
 		ArrayList<String> read_dimensions = new ArrayList<>( DIMENSIONS.get() );
 		
-		synchronized( dimensions ) {
 			dimensions.clear();
 			for( String read_dimension : read_dimensions ) {
 				ResourceLocation registry_name = ResourceLocation.tryCreate( read_dimension );
@@ -135,33 +143,28 @@ public class MainConfig {
 				DIMENSIONS.set( dimensionsToRegistryNameList() );
 				return true;
 			}
-		}
 		return false;
 	}
 	
-	private static ArrayList<String> dimensionsToRegistryNameList() {
+	private static synchronized ArrayList<String> dimensionsToRegistryNameList() {
 		
 		ArrayList<String> registryNames = new ArrayList<>();
 		
-		synchronized( dimensions ) {
-			for( RegistryKey<World> dimension : dimensions ) {
-				registryNames.add( Objects.requireNonNull( dimension.func_240901_a_() ).toString() );
-			}
+		for( RegistryKey<World> dimension : dimensions ) {
+			registryNames.add( Objects.requireNonNull( dimension.func_240901_a_() ).toString() );
 		}
 		return registryNames;
 	}
 	
-	public static void invertDimensions() {
+	public static synchronized void invertDimensions() {
 		
 		ArrayList<String> newDimensionRegistryNames = new ArrayList<>();
 		
-		synchronized( dimensions ) {
-			for( ServerWorld serverworld : ServerLifecycleHooks.getCurrentServer().getWorlds() ) {
+		for( ServerWorld serverworld : ServerLifecycleHooks.getCurrentServer().getWorlds() ) {
 				RegistryKey<World> registrykey = serverworld.func_234923_W_();
-				if( !dimensions.contains( registrykey ) ) {
-					newDimensionRegistryNames.add(
-						Objects.requireNonNull( registrykey.func_240901_a_() ).toString() );
-				}
+			if( !dimensions.contains( registrykey ) ) {
+				newDimensionRegistryNames.add(
+					Objects.requireNonNull( registrykey.func_240901_a_() ).toString() );
 			}
 		}
 		newDimensionRegistryNames.sort( String::compareTo );
@@ -209,28 +212,34 @@ public class MainConfig {
 		MORNING_MESSAGE.set( message );
 	}
 	
+	public static boolean getAllPlayersRest() {
+		
+		return ALL_PLAYERS_REST.get();
+	}
+	
+	public static void setAllPlayersRest( boolean all_player_rest ) {
+		
+		ALL_PLAYERS_REST.set( all_player_rest );
+	}
+	
 	public static TreeSet<RegistryKey<World>> getDimensions() {
 		
 		return dimensions;
 	}
 	
-	public static void addDimension( RegistryKey<World> dimension ) {
+	public static synchronized void addDimension( RegistryKey<World> dimension ) {
 		
-		synchronized( dimensions ) {
-			if( !dimensions.contains( dimension ) ) {
-				dimensions.add( dimension );
-				DIMENSIONS.set( dimensionsToRegistryNameList() );
-			}
+		if( !dimensions.contains( dimension ) ) {
+			dimensions.add( dimension );
+			DIMENSIONS.set( dimensionsToRegistryNameList() );
 		}
 	}
 	
-	public static void removeDimension( RegistryKey<World> dimension ) {
+	public static synchronized void removeDimension( RegistryKey<World> dimension ) {
 		
-		synchronized( dimensions ) {
-			if( dimensions.contains( dimension ) ) {
-				dimensions.remove( dimension );
-				DIMENSIONS.set( dimensionsToRegistryNameList() );
-			}
+		if( dimensions.contains( dimension ) ) {
+			dimensions.remove( dimension );
+			DIMENSIONS.set( dimensionsToRegistryNameList() );
 		}
 	}
 	
