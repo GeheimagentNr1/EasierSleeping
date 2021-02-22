@@ -3,19 +3,19 @@ package de.geheimagentnr1.easier_sleeping.config;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.fml.ModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
 
-@SuppressWarnings( "SynchronizationOnStaticField" )
-public class MainConfig {
+public class ServerConfig {
 	
 	
 	private static final Logger LOGGER = LogManager.getLogger();
 	
-	private static final String mod_name = "Easier Sleeping";
+	private static final String MOD_NAME = ModLoadingContext.get().getActiveContainer().getModInfo().getDisplayName();
 	
 	private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 	
@@ -28,6 +28,8 @@ public class MainConfig {
 	private static final ForgeConfigSpec.ConfigValue<String> WAKE_MESSAGE;
 	
 	private static final ForgeConfigSpec.ConfigValue<String> MORNING_MESSAGE;
+	
+	private static final ForgeConfigSpec.BooleanValue ALL_PLAYERS_REST;
 	
 	private static final ForgeConfigSpec.ConfigValue<List<String>> DIMENSIONS;
 	
@@ -56,6 +58,13 @@ public class MainConfig {
 			"morning_message",
 			"Good Morning"
 		);
+		ALL_PLAYERS_REST = BUILDER.comment(
+			"If true, the time since last rest is reset for all players, if enough other players are successfully " +
+				"sleeping. So not every player has to sleep to prevent phantom spawning for him." )
+			.define(
+				"all_players_rest",
+				false
+			);
 		DIMENSIONS = BUILDER.comment(
 			"If dimension_list_type is set to SLEEP_ACTIVE, the list is the list of dimensions in which the sleep " +
 				"voting is active." +
@@ -84,63 +93,57 @@ public class MainConfig {
 	public static void checkAndPrintConfig() {
 		
 		checkCorrectAndReadDimensions();
-		LOGGER.info( "Loading \"{}\" Config", mod_name );
+		LOGGER.info( "Loading \"{}\" Config", MOD_NAME );
 		LOGGER.info( "{} = {}", SLEEP_PERCENT.getPath(), SLEEP_PERCENT.get() );
 		LOGGER.info( "{} = {}", SLEEP_MESSAGE.getPath(), SLEEP_MESSAGE.get() );
 		LOGGER.info( "{} = {}", WAKE_MESSAGE.getPath(), WAKE_MESSAGE.get() );
 		LOGGER.info( "{} = {}", MORNING_MESSAGE.getPath(), MORNING_MESSAGE.get() );
 		LOGGER.info( "{} = {}", DIMENSIONS.getPath(), DIMENSIONS.get() );
 		LOGGER.info( "{} = {}", DIMENSION_LIST_TYPE.getPath(), DIMENSION_LIST_TYPE.get() );
-		LOGGER.info( "\"{}\" Config loaded", mod_name );
+		LOGGER.info( "\"{}\" Config loaded", MOD_NAME );
 	}
 	
-	private static void checkCorrectAndReadDimensions() {
+	private static synchronized void checkCorrectAndReadDimensions() {
 		
 		ArrayList<String> read_dimensions = new ArrayList<>( DIMENSIONS.get() );
 		
-		synchronized( dimensions ) {
-			dimensions.clear();
-			for( String read_dimension : read_dimensions ) {
-				ResourceLocation registry_name = ResourceLocation.tryCreate( read_dimension );
-				if( registry_name != null ) {
-					DimensionType dimension = DimensionType.byName( registry_name );
-					if( dimension == null ) {
-						LOGGER.warn( "Removed unknown dimension: {}", read_dimension );
-					} else {
-						dimensions.add( dimension );
-					}
+		dimensions.clear();
+		for( String read_dimension : read_dimensions ) {
+			ResourceLocation registry_name = ResourceLocation.tryCreate( read_dimension );
+			if( registry_name != null ) {
+				DimensionType dimension = DimensionType.byName( registry_name );
+				if( dimension == null ) {
+					LOGGER.warn( "Removed unknown dimension: {}", read_dimension );
 				} else {
-					LOGGER.warn( "Removed invalid dimension registry name {}", read_dimension );
+					dimensions.add( dimension );
 				}
+			} else {
+				LOGGER.warn( "Removed invalid dimension registry name {}", read_dimension );
 			}
-			if( DIMENSIONS.get().size() != dimensions.size() ) {
-				DIMENSIONS.set( dimensionsToRegistryNameList() );
-			}
+		}
+		if( DIMENSIONS.get().size() != dimensions.size() ) {
+			DIMENSIONS.set( dimensionsToRegistryNameList() );
 		}
 	}
 	
-	private static ArrayList<String> dimensionsToRegistryNameList() {
+	private static synchronized ArrayList<String> dimensionsToRegistryNameList() {
 		
 		ArrayList<String> registryNames = new ArrayList<>();
 		
-		synchronized( dimensions ) {
-			for( DimensionType dimension : dimensions ) {
-				registryNames.add( Objects.requireNonNull( dimension.getRegistryName() ).toString() );
-			}
+		for( DimensionType dimension : dimensions ) {
+			registryNames.add( Objects.requireNonNull( dimension.getRegistryName() ).toString() );
 		}
 		return registryNames;
 	}
 	
-	public static void invertDimensions() {
+	public static synchronized void invertDimensions() {
 		
 		ArrayList<String> newDimensionRegistryNames = new ArrayList<>();
 		
-		synchronized( dimensions ) {
-			for( DimensionType dimensionType : DimensionType.getAll() ) {
-				if( !dimensions.contains( dimensionType ) ) {
-					newDimensionRegistryNames.add(
-						Objects.requireNonNull( dimensionType.getRegistryName() ).toString() );
-				}
+		for( DimensionType dimensionType : DimensionType.getAll() ) {
+			if( !dimensions.contains( dimensionType ) ) {
+				newDimensionRegistryNames.add(
+					Objects.requireNonNull( dimensionType.getRegistryName() ).toString() );
 			}
 		}
 		newDimensionRegistryNames.sort( String::compareTo );
@@ -188,28 +191,34 @@ public class MainConfig {
 		MORNING_MESSAGE.set( message );
 	}
 	
+	public static boolean getAllPlayersRest() {
+		
+		return ALL_PLAYERS_REST.get();
+	}
+	
+	public static void setAllPlayersRest( boolean all_player_rest ) {
+		
+		ALL_PLAYERS_REST.set( all_player_rest );
+	}
+	
 	public static TreeSet<DimensionType> getDimensions() {
 		
 		return dimensions;
 	}
 	
-	public static void addDimension( DimensionType dimension ) {
+	public static synchronized void addDimension( DimensionType dimension ) {
 		
-		synchronized( dimensions ) {
-			if( !dimensions.contains( dimension ) ) {
-				dimensions.add( dimension );
-				DIMENSIONS.set( dimensionsToRegistryNameList() );
-			}
+		if( !dimensions.contains( dimension ) ) {
+			dimensions.add( dimension );
+			DIMENSIONS.set( dimensionsToRegistryNameList() );
 		}
 	}
 	
-	public static void removeDimension( DimensionType dimension ) {
+	public static synchronized void removeDimension( DimensionType dimension ) {
 		
-		synchronized( dimensions ) {
-			if( dimensions.contains( dimension ) ) {
-				dimensions.remove( dimension );
-				DIMENSIONS.set( dimensionsToRegistryNameList() );
-			}
+		if( dimensions.contains( dimension ) ) {
+			dimensions.remove( dimension );
+			DIMENSIONS.set( dimensionsToRegistryNameList() );
 		}
 	}
 	
