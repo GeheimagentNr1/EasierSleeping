@@ -6,8 +6,8 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -106,7 +106,7 @@ public class ServerConfig {
 	
 	public static void printLoadedConfig() {
 		
-		LOGGER.info( "Loading \"{}\" Config", mod_name );
+		LOGGER.info( "Loading \"{}\" Config", MOD_NAME );
 		printConfig();
 		LOGGER.info( "\"{}\" Config loaded", MOD_NAME );
 	}
@@ -114,7 +114,7 @@ public class ServerConfig {
 	public static synchronized void checkAndPrintConfig() {
 		
 		if( checkCorrectAndReadDimensions() ) {
-			LOGGER.info( "\"{}\" Config corrected", mod_name );
+			LOGGER.info( "\"{}\" Config corrected", MOD_NAME );
 			printConfig();
 		}
 	}
@@ -123,26 +123,28 @@ public class ServerConfig {
 		
 		ArrayList<String> read_dimensions = new ArrayList<>( DIMENSIONS.get() );
 		
-			dimensions.clear();
-			for( String read_dimension : read_dimensions ) {
-				ResourceLocation registry_name = ResourceLocation.tryCreate( read_dimension );
-				if( registry_name != null ) {
-					RegistryKey<World> registrykey = RegistryKey.func_240903_a_( Registry.field_239699_ae_,
-						registry_name );
-					ServerWorld serverworld = ServerLifecycleHooks.getCurrentServer().getWorld( registrykey );
-					if( serverworld == null ) {
-						LOGGER.warn( "Removed unknown dimension: {}", read_dimension );
-					} else {
-						dimensions.add( registrykey );
-					}
+		dimensions.clear();
+		for( String read_dimension : read_dimensions ) {
+			ResourceLocation registry_name = ResourceLocation.tryCreate( read_dimension );
+			if( registry_name != null ) {
+				RegistryKey<World> registrykey = RegistryKey.func_240903_a_(
+					Registry.field_239699_ae_,
+					registry_name
+				);
+				ServerWorld serverworld = ServerLifecycleHooks.getCurrentServer().getWorld( registrykey );
+				if( serverworld == null ) {
+					LOGGER.warn( "Removed unknown dimension: {}", read_dimension );
 				} else {
-					LOGGER.warn( "Removed invalid dimension registry name {}", read_dimension );
+					dimensions.add( registrykey );
 				}
+			} else {
+				LOGGER.warn( "Removed invalid dimension registry name {}", read_dimension );
 			}
-			if( DIMENSIONS.get().size() != dimensions.size() ) {
-				DIMENSIONS.set( dimensionsToRegistryNameList() );
-				return true;
-			}
+		}
+		if( DIMENSIONS.get().size() != dimensions.size() ) {
+			DIMENSIONS.set( dimensionsToRegistryNameList() );
+			return true;
+		}
 		return false;
 	}
 	
@@ -161,7 +163,7 @@ public class ServerConfig {
 		ArrayList<String> newDimensionRegistryNames = new ArrayList<>();
 		
 		for( ServerWorld serverworld : ServerLifecycleHooks.getCurrentServer().getWorlds() ) {
-				RegistryKey<World> registrykey = serverworld.func_234923_W_();
+			RegistryKey<World> registrykey = serverworld.func_234923_W_();
 			if( !dimensions.contains( registrykey ) ) {
 				newDimensionRegistryNames.add(
 					Objects.requireNonNull( registrykey.func_240901_a_() ).toString() );

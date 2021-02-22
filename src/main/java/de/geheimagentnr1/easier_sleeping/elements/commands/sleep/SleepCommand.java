@@ -155,7 +155,7 @@ public class SleepCommand {
 		
 		context.getSource().sendFeedback(
 			new StringTextComponent( "All players rest is: " )
-				.appendText( String.valueOf( ServerConfig.getAllPlayersRest() ) ),
+				.func_240702_b_( String.valueOf( ServerConfig.getAllPlayersRest() ) ),
 			true
 		);
 		return Command.SINGLE_SUCCESS;
@@ -166,7 +166,7 @@ public class SleepCommand {
 		ServerConfig.setAllPlayersRest( BoolArgumentType.getBool( context, "all_players_rest" ) );
 		context.getSource().sendFeedback(
 			new StringTextComponent( "All players rest is now : " )
-				.appendText( String.valueOf( ServerConfig.getAllPlayersRest() ) ),
+				.func_240702_b_( String.valueOf( ServerConfig.getAllPlayersRest() ) ),
 			true
 		);
 		return Command.SINGLE_SUCCESS;
