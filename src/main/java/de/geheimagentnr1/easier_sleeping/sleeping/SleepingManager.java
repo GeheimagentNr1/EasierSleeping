@@ -160,7 +160,7 @@ public class SleepingManager {
 		
 		for( PlayerEntity player : players ) {
 			player.sendMessage(
-				message.func_230530_a_( Style.field_240709_b_.func_240712_a_( TextFormatting.YELLOW ) ),
+				message.setStyle( Style.EMPTY.setFormatting( TextFormatting.YELLOW ) ),
 				Util.DUMMY_UUID
 			);
 		}
@@ -172,7 +172,7 @@ public class SleepingManager {
 		int player_count,
 		String message ) {
 		
-		return new StringTextComponent( "" ).func_230529_a_( player.getDisplayName() )
+		return new StringTextComponent( "" ).append( player.getDisplayName() )
 			.appendString( String.format(
 				" %s - %d/%d (%d%%)",
 				message,

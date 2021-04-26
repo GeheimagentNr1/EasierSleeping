@@ -115,10 +115,7 @@ public class ServerConfig {
 		for( String read_dimension : read_dimensions ) {
 			ResourceLocation registry_name = ResourceLocation.tryCreate( read_dimension );
 			if( registry_name != null ) {
-				RegistryKey<World> registrykey = RegistryKey.getOrCreateKey(
-					Registry.WORLD_KEY,
-					registry_name
-				);
+				RegistryKey<World> registrykey = RegistryKey.getOrCreateKey( Registry.WORLD_KEY, registry_name );
 				ServerWorld serverworld = ServerLifecycleHooks.getCurrentServer().getWorld( registrykey );
 				if( serverworld == null ) {
 					LOGGER.warn( "Removed unknown dimension: {}", read_dimension );

@@ -209,7 +209,8 @@ public class SleepCommand {
 	
 	private static int addDimension( CommandContext<CommandSource> context ) throws CommandSyntaxException {
 		
-		RegistryKey<World> dimension = DimensionArgument.getDimensionArgument( context, "dimension" ).getDimensionKey();
+		RegistryKey<World> dimension = DimensionArgument.getDimensionArgument( context, "dimension" )
+			.getDimensionKey();
 		ServerConfig.addDimension( dimension );
 		context.getSource().sendFeedback(
 			new StringTextComponent( String.format(
@@ -223,7 +224,8 @@ public class SleepCommand {
 	
 	private static int removeDimension( CommandContext<CommandSource> context ) throws CommandSyntaxException {
 		
-		RegistryKey<World> dimension = DimensionArgument.getDimensionArgument( context, "dimension" ).getDimensionKey();
+		RegistryKey<World> dimension = DimensionArgument.getDimensionArgument( context, "dimension" )
+			.getDimensionKey();
 		ServerConfig.removeDimension( dimension );
 		context.getSource().sendFeedback(
 			new StringTextComponent( String.format(
