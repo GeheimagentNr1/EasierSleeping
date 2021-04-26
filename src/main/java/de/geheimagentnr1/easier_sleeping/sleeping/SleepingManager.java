@@ -11,6 +11,8 @@ import net.minecraft.util.RegistryKey;
 import net.minecraft.util.Util;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
@@ -66,8 +68,7 @@ public class SleepingManager {
 				non_spectator_player_count
 			);
 			if( sleeping_percent >= ServerConfig.getSleepPercent() ||
-				non_spectator_player_count > 0 &&
-					non_spectator_player_count == sleeping_players.size() ) {
+				non_spectator_player_count > 0 && non_spectator_player_count == sleeping_players.size() ) {
 				if( world.getGameRules().getBoolean( GameRules.DO_DAYLIGHT_CYCLE ) ) {
 					long currentDayTime = world.getDayTime();
 					long newDayTime = currentDayTime + 24000L - currentDayTime % 24000L;
@@ -157,7 +158,7 @@ public class SleepingManager {
 	private static void sendMessage( List<? extends PlayerEntity> players, ITextComponent message ) {
 		
 		for( PlayerEntity player : players ) {
-			player.sendMessage( message, Util.field_240973_b_ );
+			player.sendMessage( message.setStyle( new Style().setColor( TextFormatting.YELLOW ) ), Util.field_240973_b_ );
 		}
 	}
 	
@@ -167,15 +168,14 @@ public class SleepingManager {
 		int player_count,
 		String message ) {
 		
-		return new StringTextComponent( "" ).func_230529_a_( player.getDisplayName() )
-			.func_240702_b_( " " ).func_240702_b_( message )
-			.func_240702_b_( " - " )
-			.func_240702_b_( String.valueOf( sleep_player_count ) )
-			.func_240702_b_( "/" )
-			.func_240702_b_( String.valueOf( player_count ) )
-			.func_240702_b_( " (" )
-			.func_240702_b_( String.valueOf( caculateSleepingPercent( sleep_player_count, player_count ) ) )
-			.func_240702_b_( "%)" );
+		return player.getDisplayName()
+			.appendText( String.format(
+				" %s - %d/%d (%d%%)",
+				message,
+				sleep_player_count,
+				player_count,
+				caculateSleepingPercent( sleep_player_count, player_count )
+			) );
 	}
 	
 	private static int caculateSleepingPercent( int sleep_player_count, int non_spectator_player_count ) {
