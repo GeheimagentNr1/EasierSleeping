@@ -76,8 +76,8 @@ public class SleepingManager {
 					world.func_241114_a_( newDayTime );
 				}
 				sleeping_players.forEach( player -> {
-					player.getBedPosition().ifPresent( pos ->
-						player.func_241153_a_( world.func_234923_W_(), pos, false, false )
+					player.getBedPosition().ifPresent(
+						pos -> player.func_241153_a_( world.func_234923_W_(), pos, false, false )
 					);
 					player.wakeUp();
 				} );
