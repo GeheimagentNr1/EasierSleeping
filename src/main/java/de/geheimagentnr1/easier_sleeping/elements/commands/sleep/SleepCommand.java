@@ -24,8 +24,8 @@ public class SleepCommand {
 	
 	public static void register( CommandDispatcher<CommandSource> dispatcher ) {
 		
-		LiteralArgumentBuilder<CommandSource> sleep =
-			Commands.literal( "sleep" ).requires( source -> source.hasPermissionLevel( 2 ) );
+		LiteralArgumentBuilder<CommandSource> sleep = Commands.literal( "sleep" )
+			.requires( source -> source.hasPermissionLevel( 2 ) );
 		sleep.then( Commands.literal( "sleep_percent" )
 			.executes( SleepCommand::showSleepPercent )
 			.then( Commands.argument( "sleep_percent", IntegerArgumentType.integer( 0, 100 ) )
