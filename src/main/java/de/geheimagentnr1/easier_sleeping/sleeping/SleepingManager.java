@@ -9,7 +9,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.Util;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
@@ -77,7 +77,8 @@ public class SleepingManager {
 				}
 				sleeping_players.forEach( player -> {
 					player.getBedPosition().ifPresent( pos ->
-						player.func_241153_a_( world.func_234923_W_(), pos, false, false ) );
+						player.func_241153_a_( world.func_234923_W_(), pos, false, false )
+					);
 					player.wakeUp();
 				} );
 				if( world.getGameRules().getBoolean( GameRules.DO_WEATHER_CYCLE ) ) {
@@ -155,21 +156,24 @@ public class SleepingManager {
 		sendMessage( players, new StringTextComponent( ServerConfig.getMorningMessage() ) );
 	}
 	
-	private static void sendMessage( List<? extends PlayerEntity> players, ITextComponent message ) {
+	private static void sendMessage( List<? extends PlayerEntity> players, IFormattableTextComponent message ) {
 		
 		for( PlayerEntity player : players ) {
-			player.sendMessage( message.setStyle( new Style().setColor( TextFormatting.YELLOW ) ), Util.field_240973_b_ );
+			player.sendMessage(
+				message.func_230530_a_( Style.field_240709_b_.func_240712_a_( TextFormatting.YELLOW ) ),
+				Util.field_240973_b_
+			);
 		}
 	}
 	
-	private static ITextComponent buildWakeSleepMessage(
+	private static IFormattableTextComponent buildWakeSleepMessage(
 		PlayerEntity player,
 		int sleep_player_count,
 		int player_count,
 		String message ) {
 		
-		return player.getDisplayName()
-			.appendText( String.format(
+		return new StringTextComponent( "" ).func_230529_a_( player.getDisplayName() )
+			.func_240702_b_( String.format(
 				" %s - %d/%d (%d%%)",
 				message,
 				sleep_player_count,
