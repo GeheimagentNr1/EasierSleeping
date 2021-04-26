@@ -8,8 +8,9 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.GameRules;
-import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.ForgeEventFactory;
@@ -35,7 +36,7 @@ public class SleepingManager {
 	//package-private
 	static void updateSleepingPlayers( MinecraftServer server ) {
 		
-		for( World world : server.getWorlds() ) {
+		for( ServerWorld world : server.getWorlds() ) {
 			DimensionType dimensionType = world.getDimension().getType();
 			boolean containsDimension = ServerConfig.getDimensions().contains( dimensionType );
 			if( ServerConfig.getDimensionListType() == DimensionListType.SLEEP_ACTIVE && !containsDimension ||
@@ -64,16 +65,11 @@ public class SleepingManager {
 				non_spectator_player_count
 			);
 			if( sleeping_percent >= ServerConfig.getSleepPercent() ||
-				non_spectator_player_count > 0 &&
-					non_spectator_player_count == sleeping_players.size() ) {
+				non_spectator_player_count > 0 && non_spectator_player_count == sleeping_players.size() ) {
 				if( world.getGameRules().getBoolean( GameRules.DO_DAYLIGHT_CYCLE ) ) {
 					long currentDayTime = world.getDayTime();
 					long newDayTime = currentDayTime + 24000L - currentDayTime % 24000L;
-					if( world instanceof ServerWorld ) {
-						newDayTime = ForgeEventFactory.onSleepFinished( (ServerWorld)world, newDayTime,
-							currentDayTime
-						);
-					}
+					newDayTime = ForgeEventFactory.onSleepFinished( world, newDayTime, currentDayTime );
 					world.setDayTime( newDayTime );
 				}
 				sleeping_players.forEach( player -> player.wakeUpPlayer( false, false, true ) );
@@ -155,7 +151,7 @@ public class SleepingManager {
 	private static void sendMessage( List<? extends PlayerEntity> players, ITextComponent message ) {
 		
 		for( PlayerEntity player : players ) {
-			player.sendMessage( message );
+			player.sendMessage( message.setStyle( new Style().setColor( TextFormatting.YELLOW ) ) );
 		}
 	}
 	
@@ -166,15 +162,13 @@ public class SleepingManager {
 		String message ) {
 		
 		return player.getDisplayName()
-			.appendText( " " )
-			.appendText( message )
-			.appendText( " - " )
-			.appendText( String.valueOf( sleep_player_count ) )
-			.appendText( "/" )
-			.appendText( String.valueOf( player_count ) )
-			.appendText( " (" )
-			.appendText( String.valueOf( caculateSleepingPercent( sleep_player_count, player_count ) ) )
-			.appendText( "%)" );
+			.appendText( String.format(
+				" %s - %d/%d (%d%%)",
+				message,
+				sleep_player_count,
+				player_count,
+				caculateSleepingPercent( sleep_player_count, player_count )
+			) );
 	}
 	
 	private static int caculateSleepingPercent( int sleep_player_count, int non_spectator_player_count ) {
