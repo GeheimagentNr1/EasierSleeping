@@ -29,18 +29,18 @@ public class SleepingManager {
 	
 	private static TreeMap<RegistryKey<World>, TreeSet<ServerPlayerEntity>> SLEEPING;
 	
-	private static final Comparator<PlayerEntity> PLAYER_COMPARATOR = Comparator.comparing( Entity::getUniqueID );
+	private static final Comparator<PlayerEntity> PLAYER_COMPARATOR = Comparator.comparing( Entity::getUUID );
 	
 	public static void init() {
 		
-		SLEEPING = new TreeMap<>( Comparator.comparing( RegistryKey::getLocation ) );
+		SLEEPING = new TreeMap<>( Comparator.comparing( RegistryKey::location ) );
 	}
 	
 	//package-private
 	static void updateSleepingPlayers( MinecraftServer server ) {
 		
-		for( ServerWorld world : server.getWorlds() ) {
-			RegistryKey<World> registrykey = world.getDimensionKey();
+		for( ServerWorld world : server.getAllLevels() ) {
+			RegistryKey<World> registrykey = world.dimension();
 			boolean containsDimension = ServerConfig.getDimensions().contains( registrykey );
 			if( ServerConfig.getDimensionListType() == DimensionListType.SLEEP_ACTIVE && !containsDimension ||
 				ServerConfig.getDimensionListType() == DimensionListType.SLEEP_INACTIVE && containsDimension ) {
@@ -50,7 +50,7 @@ public class SleepingManager {
 				SLEEPING.put( registrykey, new TreeSet<>( PLAYER_COMPARATOR ) );
 			}
 			TreeSet<ServerPlayerEntity> sleeping_players = SLEEPING.get( registrykey );
-			List<ServerPlayerEntity> world_players = world.getPlayers();
+			List<ServerPlayerEntity> world_players = world.players();
 			int non_spectator_player_count = countNonSpectatorPlayers( world_players );
 			for( ServerPlayerEntity player : world_players ) {
 				if( player.isSleeping() && !sleeping_players.contains( player ) ) {
@@ -69,24 +69,24 @@ public class SleepingManager {
 			);
 			if( sleeping_percent >= ServerConfig.getSleepPercent() ||
 				non_spectator_player_count > 0 && non_spectator_player_count == sleeping_players.size() ) {
-				if( world.getGameRules().getBoolean( GameRules.DO_DAYLIGHT_CYCLE ) ) {
+				if( world.getGameRules().getBoolean( GameRules.RULE_DAYLIGHT ) ) {
 					long currentDayTime = world.getDayTime();
 					long newDayTime = currentDayTime + 24000L - currentDayTime % 24000L;
 					newDayTime = ForgeEventFactory.onSleepFinished( world, newDayTime, currentDayTime );
 					world.setDayTime( newDayTime );
 				}
 				sleeping_players.forEach( player -> {
-					player.getBedPosition().ifPresent(
-						pos -> player.func_242111_a( world.getDimensionKey(), pos, player.rotationYaw, false, false )
+					player.getSleepingPos().ifPresent(
+						pos -> player.setRespawnPosition( world.dimension(), pos, player.yRot, false, false )
 					);
-					player.wakeUp();
+					player.stopSleeping();
 				} );
-				if( world.getGameRules().getBoolean( GameRules.DO_WEATHER_CYCLE ) ) {
-					world.func_241113_a_( 0, 0, false, false );
+				if( world.getGameRules().getBoolean( GameRules.RULE_WEATHER_CYCLE ) ) {
+					world.setWeatherParameters( 0, 0, false, false );
 				}
 				if( ServerConfig.getAllPlayersRest() ) {
 					world_players.forEach(
-						playerEntity -> playerEntity.takeStat( Stats.CUSTOM.get( Stats.TIME_SINCE_REST ) )
+						playerEntity -> playerEntity.resetStat( Stats.CUSTOM.get( Stats.TIME_SINCE_REST ) )
 					);
 				}
 				sendMorningMessage( world_players );
@@ -110,7 +110,7 @@ public class SleepingManager {
 		
 		int count = 0;
 		for( ServerPlayerEntity player : players ) {
-			if( player.isPlayerFullyAsleep() ) {
+			if( player.isSleepingLongEnough() ) {
 				count++;
 			}
 		}
@@ -160,8 +160,8 @@ public class SleepingManager {
 		
 		for( PlayerEntity player : players ) {
 			player.sendMessage(
-				message.setStyle( Style.EMPTY.setFormatting( TextFormatting.YELLOW ) ),
-				Util.DUMMY_UUID
+				message.setStyle( Style.EMPTY.withColor( TextFormatting.YELLOW ) ),
+				Util.NIL_UUID
 			);
 		}
 	}
@@ -173,7 +173,7 @@ public class SleepingManager {
 		String message ) {
 		
 		return new StringTextComponent( "" ).append( player.getDisplayName() )
-			.appendString( String.format(
+			.append( String.format(
 				" %s - %d/%d (%d%%)",
 				message,
 				sleep_player_count,

@@ -40,7 +40,7 @@ public class ServerConfig {
 	private static final ForgeConfigSpec.EnumValue<DimensionListType> DIMENSION_LIST_TYPE;
 	
 	private static final TreeSet<RegistryKey<World>> dimensions =
-		new TreeSet<>( Comparator.comparing( RegistryKey::getLocation ) );
+		new TreeSet<>( Comparator.comparing( RegistryKey::location ) );
 	
 	static {
 		
@@ -63,7 +63,7 @@ public class ServerConfig {
 				"sleep voting is inactive."
 		) ).define(
 			"dimensions",
-			Collections.singletonList( Objects.requireNonNull( World.OVERWORLD.getLocation() ).toString() ),
+			Collections.singletonList( Objects.requireNonNull( World.OVERWORLD.location() ).toString() ),
 			o -> {
 				if( o instanceof List<?> ) {
 					List<?> list = (List<?>)o;
@@ -113,10 +113,10 @@ public class ServerConfig {
 		
 		dimensions.clear();
 		for( String read_dimension : read_dimensions ) {
-			ResourceLocation registry_name = ResourceLocation.tryCreate( read_dimension );
+			ResourceLocation registry_name = ResourceLocation.tryParse( read_dimension );
 			if( registry_name != null ) {
-				RegistryKey<World> registrykey = RegistryKey.getOrCreateKey( Registry.WORLD_KEY, registry_name );
-				ServerWorld serverworld = ServerLifecycleHooks.getCurrentServer().getWorld( registrykey );
+				RegistryKey<World> registrykey = RegistryKey.create( Registry.DIMENSION_REGISTRY, registry_name );
+				ServerWorld serverworld = ServerLifecycleHooks.getCurrentServer().getLevel( registrykey );
 				if( serverworld == null ) {
 					LOGGER.warn( "Removed unknown dimension: {}", read_dimension );
 				} else {
@@ -138,7 +138,7 @@ public class ServerConfig {
 		ArrayList<String> registryNames = new ArrayList<>();
 		
 		for( RegistryKey<World> dimension : dimensions ) {
-			registryNames.add( Objects.requireNonNull( dimension.getLocation() ).toString() );
+			registryNames.add( Objects.requireNonNull( dimension.location() ).toString() );
 		}
 		return registryNames;
 	}
@@ -147,10 +147,10 @@ public class ServerConfig {
 		
 		ArrayList<String> newDimensionRegistryNames = new ArrayList<>();
 		
-		for( ServerWorld serverworld : ServerLifecycleHooks.getCurrentServer().getWorlds() ) {
-			RegistryKey<World> registrykey = serverworld.getDimensionKey();
+		for( ServerWorld serverworld : ServerLifecycleHooks.getCurrentServer().getAllLevels() ) {
+			RegistryKey<World> registrykey = serverworld.dimension();
 			if( !dimensions.contains( registrykey ) ) {
-				newDimensionRegistryNames.add( Objects.requireNonNull( registrykey.getLocation() ).toString() );
+				newDimensionRegistryNames.add( Objects.requireNonNull( registrykey.location() ).toString() );
 				
 			}
 		}

@@ -23,7 +23,7 @@ public class SleepingWorker implements WorldWorkerManager.IWorker {
 	public boolean doWork() {
 		
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-		if( server.getTickCounter() % 20 != 0 ) {
+		if( server.getTickCount() % 20 != 0 ) {
 			return false;
 		}
 		SleepingManager.updateSleepingPlayers( server );
