@@ -9,8 +9,10 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.Util;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
@@ -66,8 +68,7 @@ public class SleepingManager {
 				non_spectator_player_count
 			);
 			if( sleeping_percent >= ServerConfig.getSleepPercent() ||
-				non_spectator_player_count > 0 &&
-					non_spectator_player_count == sleeping_players.size() ) {
+				non_spectator_player_count > 0 && non_spectator_player_count == sleeping_players.size() ) {
 				if( world.getGameRules().getBoolean( GameRules.DO_DAYLIGHT_CYCLE ) ) {
 					long currentDayTime = world.getDayTime();
 					long newDayTime = currentDayTime + 24000L - currentDayTime % 24000L;
@@ -76,7 +77,8 @@ public class SleepingManager {
 				}
 				sleeping_players.forEach( player -> {
 					player.getBedPosition().ifPresent( pos ->
-						player.func_242111_a( world.getDimensionKey(), pos, player.rotationYaw, false, false ) );
+						player.func_242111_a( world.getDimensionKey(), pos, player.rotationYaw, false, false )
+					);
 					player.wakeUp();
 				} );
 				if( world.getGameRules().getBoolean( GameRules.DO_WEATHER_CYCLE ) ) {
@@ -154,28 +156,30 @@ public class SleepingManager {
 		sendMessage( players, new StringTextComponent( ServerConfig.getMorningMessage() ) );
 	}
 	
-	private static void sendMessage( List<? extends PlayerEntity> players, ITextComponent message ) {
+	private static void sendMessage( List<? extends PlayerEntity> players, IFormattableTextComponent message ) {
 		
 		for( PlayerEntity player : players ) {
-			player.sendMessage( message, Util.DUMMY_UUID );
+			player.sendMessage(
+				message.setStyle( Style.EMPTY.setFormatting( TextFormatting.YELLOW ) ),
+				Util.DUMMY_UUID
+			);
 		}
 	}
 	
-	private static ITextComponent buildWakeSleepMessage(
+	private static IFormattableTextComponent buildWakeSleepMessage(
 		PlayerEntity player,
 		int sleep_player_count,
 		int player_count,
 		String message ) {
 		
 		return new StringTextComponent( "" ).append( player.getDisplayName() )
-			.appendString( " " ).appendString( message )
-			.appendString( " - " )
-			.appendString( String.valueOf( sleep_player_count ) )
-			.appendString( "/" )
-			.appendString( String.valueOf( player_count ) )
-			.appendString( " (" )
-			.appendString( String.valueOf( caculateSleepingPercent( sleep_player_count, player_count ) ) )
-			.appendString( "%)" );
+			.appendString( String.format(
+				" %s - %d/%d (%d%%)",
+				message,
+				sleep_player_count,
+				player_count,
+				caculateSleepingPercent( sleep_player_count, player_count )
+			) );
 	}
 	
 	private static int caculateSleepingPercent( int sleep_player_count, int non_spectator_player_count ) {
