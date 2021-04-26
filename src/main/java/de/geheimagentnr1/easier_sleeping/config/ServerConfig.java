@@ -17,7 +17,7 @@ import java.util.*;
 public class ServerConfig {
 	
 	
-	private static final Logger LOGGER = LogManager.getLogger();
+	private static final Logger LOGGER = LogManager.getLogger( ServerConfig.class );
 	
 	private static final String MOD_NAME = ModLoadingContext.get().getActiveContainer().getModInfo().getDisplayName();
 	
@@ -44,52 +44,40 @@ public class ServerConfig {
 	
 	static {
 		
-		SLEEP_PERCENT = BUILDER.comment( "Percentage of players required to skip the night." ).defineInRange(
-			"sleep_percent",
-			50,
-			0,
-			100
-		);
-		SLEEP_MESSAGE = BUILDER.comment( "Message shown, if a player goes to bed" ).define(
-			"sleep_message",
-			"is now in bed."
-		);
-		WAKE_MESSAGE = BUILDER.comment( "Message shown, if a player leaves his bed" ).define(
-			"wake_message",
-			"stood up."
-		);
-		MORNING_MESSAGE = BUILDER.comment( "Message shown, if the night was skipped" ).define(
-			"morning_message",
-			"Good Morning"
-		);
+		SLEEP_PERCENT = BUILDER.comment( "Percentage of players required to skip the night." )
+			.defineInRange( "sleep_percent", 50, 0, 100 );
+		SLEEP_MESSAGE = BUILDER.comment( "Message shown, if a player goes to bed" )
+			.define( "sleep_message", "is now in bed." );
+		WAKE_MESSAGE = BUILDER.comment( "Message shown, if a player leaves his bed" )
+			.define( "wake_message", "stood up." );
+		MORNING_MESSAGE = BUILDER.comment( "Message shown, if the night was skipped" )
+			.define( "morning_message", "Good Morning" );
 		ALL_PLAYERS_REST = BUILDER.comment(
 			"If true, the time since last rest is reset for all players, if enough other players are successfully " +
-				"sleeping. So not every player has to sleep to prevent phantom spawning for him." )
-			.define(
-				"all_players_rest",
-				false
-			);
-		DIMENSIONS = BUILDER.comment(
+				"sleeping. So not every player has to sleep to prevent phantom spawning for him."
+		).define( "all_players_rest", false );
+		DIMENSIONS = BUILDER.comment( String.format(
 			"If dimension_list_type is set to SLEEP_ACTIVE, the list is the list of dimensions in which the sleep " +
-				"voting is active." +
-				System.lineSeparator() +
+				"voting is active.%n" +
 				"If dimension_list_type is set to SLEEP_INACTIVE, the list is the list of dimensions in which the " +
-				"sleep voting is inactive." )
-			.define( "dimensions", Collections.singletonList(
-				Objects.requireNonNull( World.OVERWORLD.getLocation() ).toString() ), o -> {
+				"sleep voting is inactive."
+		) ).define(
+			"dimensions",
+			Collections.singletonList( Objects.requireNonNull( World.OVERWORLD.getLocation() ).toString() ),
+			o -> {
 				if( o instanceof List<?> ) {
 					List<?> list = (List<?>)o;
 					return list.isEmpty() || list.get( 0 ) instanceof String;
 				}
 				return false;
-			} );
-		DIMENSION_LIST_TYPE = BUILDER.comment(
+			}
+		);
+		DIMENSION_LIST_TYPE = BUILDER.comment( String.format(
 			"If dimension_list_type is set to SLEEP_ACTIVE, the dimension list is the list of dimensions in which " +
-				"the sleep voting is active." +
-				System.lineSeparator() +
+				"the sleep voting is active.%n" +
 				"If dimension_list_type is set to SLEEP_INACTIVE, the dimension list is the list of dimensions in " +
-				"which the sleep voting is inactive." )
-			.defineEnum( "dimension_list_type", DimensionListType.SLEEP_ACTIVE );
+				"which the sleep voting is inactive."
+		) ).defineEnum( "dimension_list_type", DimensionListType.SLEEP_ACTIVE );
 		
 		CONFIG = BUILDER.build();
 	}
@@ -106,15 +94,15 @@ public class ServerConfig {
 	
 	public static void printLoadedConfig() {
 		
-		LOGGER.info( "Loading \"{}\" Config", MOD_NAME );
+		LOGGER.info( "Loading \"{}\" Server Config", MOD_NAME );
 		printConfig();
-		LOGGER.info( "\"{}\" Config loaded", MOD_NAME );
+		LOGGER.info( "\"{}\" Server Config loaded", MOD_NAME );
 	}
 	
 	public static synchronized void checkAndPrintConfig() {
 		
 		if( checkCorrectAndReadDimensions() ) {
-			LOGGER.info( "\"{}\" Config corrected", MOD_NAME );
+			LOGGER.info( "\"{}\" Server Config corrected", MOD_NAME );
 			printConfig();
 		}
 	}
@@ -165,8 +153,7 @@ public class ServerConfig {
 		for( ServerWorld serverworld : ServerLifecycleHooks.getCurrentServer().getWorlds() ) {
 			RegistryKey<World> registrykey = serverworld.getDimensionKey();
 			if( !dimensions.contains( registrykey ) ) {
-				newDimensionRegistryNames.add(
-					Objects.requireNonNull( registrykey.getLocation() ).toString() );
+				newDimensionRegistryNames.add( Objects.requireNonNull( registrykey.getLocation() ).toString() );
 			}
 		}
 		newDimensionRegistryNames.sort( String::compareTo );
