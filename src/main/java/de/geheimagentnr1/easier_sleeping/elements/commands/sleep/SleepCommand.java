@@ -24,8 +24,8 @@ public class SleepCommand {
 	
 	public static void register( CommandDispatcher<CommandSource> dispatcher ) {
 		
-		LiteralArgumentBuilder<CommandSource> sleep =
-			Commands.literal( "sleep" ).requires( source -> source.hasPermissionLevel( 2 ) );
+		LiteralArgumentBuilder<CommandSource> sleep = Commands.literal( "sleep" )
+			.requires( source -> source.hasPermissionLevel( 2 ) );
 		sleep.then( Commands.literal( "sleep_percent" )
 			.executes( SleepCommand::showSleepPercent )
 			.then( Commands.argument( "sleep_percent", IntegerArgumentType.integer( 0, 100 ) )
@@ -209,8 +209,7 @@ public class SleepCommand {
 	
 	private static int addDimension( CommandContext<CommandSource> context ) throws CommandSyntaxException {
 		
-		RegistryKey<World> dimension =
-			DimensionArgument.getDimensionArgument( context, "dimension" )
+		RegistryKey<World> dimension = DimensionArgument.getDimensionArgument( context, "dimension" )
 			.getDimensionKey();
 		ServerConfig.addDimension( dimension );
 		context.getSource().sendFeedback(
@@ -225,8 +224,7 @@ public class SleepCommand {
 	
 	private static int removeDimension( CommandContext<CommandSource> context ) throws CommandSyntaxException {
 		
-		RegistryKey<World> dimension =
-			DimensionArgument.getDimensionArgument( context, "dimension" )
+		RegistryKey<World> dimension = DimensionArgument.getDimensionArgument( context, "dimension" )
 			.getDimensionKey();
 		ServerConfig.removeDimension( dimension );
 		context.getSource().sendFeedback(
