@@ -20,8 +20,9 @@ import java.util.function.Function;
 class DimensionListTypeParser {
 	
 	
-	private static final DynamicCommandExceptionType DIMENSION_LIST_TYPE_INVALID =
-		new DynamicCommandExceptionType( function -> new StringTextComponent( "Invalid Dimension List Type" ) );
+	private static final DynamicCommandExceptionType DIMENSION_LIST_TYPE_INVALID = new DynamicCommandExceptionType(
+		function -> new StringTextComponent( "Invalid Dimension List Type" )
+	);
 	
 	private static final Set<String> DIMENSION_LIST_TYPES = getItemKeySet();
 	

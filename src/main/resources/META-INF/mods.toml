@@ -32,7 +32,7 @@ credits="Thanks for the logo goes to Muse31" #optional
 authors="GeheimagentNr1" #optional
 # The description text for the mod (multi line!) (#mandatory)
 description='''
-Only a percentage of Players have to sleep.
+Only a percentage of players has to sleep.
 '''
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
 [[dependencies.easier_sleeping]] #optional
