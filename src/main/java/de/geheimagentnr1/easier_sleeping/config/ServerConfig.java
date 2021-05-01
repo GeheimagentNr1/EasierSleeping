@@ -56,12 +56,12 @@ public class ServerConfig {
 			"If true, the time since last rest is reset for all players, if enough other players are successfully " +
 				"sleeping. So not every player has to sleep to prevent phantom spawning for him."
 		).define( "all_players_rest", false );
-		DIMENSIONS = BUILDER.comment( String.format(
+		DIMENSIONS = BUILDER.comment(
 			"If dimension_list_type is set to SLEEP_ACTIVE, the list is the list of dimensions in which the sleep " +
-				"voting is active.%n" +
-				"If dimension_list_type is set to SLEEP_INACTIVE, the list is the list of dimensions in which the " +
+				"voting is active.",
+			"If dimension_list_type is set to SLEEP_INACTIVE, the list is the list of dimensions in which the " +
 				"sleep voting is inactive."
-		) ).define(
+		).define(
 			"dimensions",
 			Collections.singletonList( Objects.requireNonNull( World.OVERWORLD.getLocation() ).toString() ),
 			o -> {
@@ -72,12 +72,12 @@ public class ServerConfig {
 				return false;
 			}
 		);
-		DIMENSION_LIST_TYPE = BUILDER.comment( String.format(
+		DIMENSION_LIST_TYPE = BUILDER.comment(
 			"If dimension_list_type is set to SLEEP_ACTIVE, the dimension list is the list of dimensions in which " +
-				"the sleep voting is active.%n" +
-				"If dimension_list_type is set to SLEEP_INACTIVE, the dimension list is the list of dimensions in " +
+				"the sleep voting is active.",
+			"If dimension_list_type is set to SLEEP_INACTIVE, the dimension list is the list of dimensions in " +
 				"which the sleep voting is inactive."
-		) ).defineEnum( "dimension_list_type", DimensionListType.SLEEP_ACTIVE );
+		).defineEnum( "dimension_list_type", DimensionListType.SLEEP_ACTIVE );
 		
 		CONFIG = BUILDER.build();
 	}
