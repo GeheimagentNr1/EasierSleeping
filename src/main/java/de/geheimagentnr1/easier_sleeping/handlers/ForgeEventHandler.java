@@ -28,7 +28,6 @@ public class ForgeEventHandler {
 	@SubscribeEvent
 	public static void handlerRegisterCommandsEvent( RegisterCommandsEvent event ) {
 		
-		ModArgumentTypes.registerArgumentTypes();
 		SleepCommand.register( event.getDispatcher() );
 	}
 }
