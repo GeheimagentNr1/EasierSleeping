@@ -198,7 +198,7 @@ public class SleepCommand {
 			source.sendSuccess(
 				new StringTextComponent( String.format(
 					" - %s",
-					dimension.getLocation()
+					dimension.location()
 				) ),
 				false
 			);
@@ -213,7 +213,7 @@ public class SleepCommand {
 		context.getSource().sendSuccess(
 			new StringTextComponent( String.format(
 				"Added Dimension: %s",
-				dimension.getLocation()
+				dimension.location()
 			) ),
 			true
 		);
@@ -227,7 +227,7 @@ public class SleepCommand {
 		context.getSource().sendSuccess(
 			new StringTextComponent( String.format(
 				"Removed Dimension: %s",
-				dimension.getLocation()
+				dimension.location()
 			) ),
 			true
 		);
@@ -270,7 +270,7 @@ public class SleepCommand {
 			source.sendSuccess(
 				new StringTextComponent( String.format(
 					" - %s",
-					dimension.getLocation()
+					dimension.location()
 				) ),
 				false
 			);
