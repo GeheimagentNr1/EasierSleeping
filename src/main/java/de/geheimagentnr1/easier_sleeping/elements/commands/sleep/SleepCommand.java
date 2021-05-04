@@ -199,7 +199,7 @@ public class SleepCommand {
 			source.sendFeedback(
 				new StringTextComponent( String.format(
 					" - %s",
-					dimension.getRegistryName()
+					dimension.func_240901_a_()
 				) ),
 				false
 			);
@@ -214,7 +214,7 @@ public class SleepCommand {
 		context.getSource().sendFeedback(
 			new StringTextComponent( String.format(
 				"Added Dimension: %s",
-				dimension.getRegistryName()
+				dimension.func_240901_a_()
 			) ),
 			true
 		);
@@ -228,7 +228,7 @@ public class SleepCommand {
 		context.getSource().sendFeedback(
 			new StringTextComponent( String.format(
 				"Removed Dimension: %s",
-				dimension.getRegistryName()
+				dimension.func_240901_a_()
 			) ),
 			true
 		);
@@ -271,7 +271,7 @@ public class SleepCommand {
 			source.sendFeedback(
 				new StringTextComponent( String.format(
 					" - %s",
-					dimension.getRegistryName()
+					dimension.func_240901_a_()
 				) ),
 				false
 			);
