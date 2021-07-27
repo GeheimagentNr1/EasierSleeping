@@ -2,20 +2,21 @@ package de.geheimagentnr1.easier_sleeping.sleeping;
 
 import de.geheimagentnr1.easier_sleeping.config.DimensionListType;
 import de.geheimagentnr1.easier_sleeping.config.ServerConfig;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.Util;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.event.ForgeEventFactory;
 
 import java.util.Comparator;
@@ -27,20 +28,20 @@ import java.util.TreeSet;
 public class SleepingManager {
 	
 	
-	private static TreeMap<RegistryKey<World>, TreeSet<ServerPlayerEntity>> SLEEPING;
+	private static TreeMap<ResourceKey<Level>, TreeSet<ServerPlayer>> SLEEPING;
 	
-	private static final Comparator<PlayerEntity> PLAYER_COMPARATOR = Comparator.comparing( Entity::getUUID );
+	private static final Comparator<Player> PLAYER_COMPARATOR = Comparator.comparing( Entity::getUUID );
 	
 	public static void init() {
 		
-		SLEEPING = new TreeMap<>( Comparator.comparing( RegistryKey::location ) );
+		SLEEPING = new TreeMap<>( Comparator.comparing( ResourceKey::location ) );
 	}
 	
 	//package-private
 	static void updateSleepingPlayers( MinecraftServer server ) {
 		
-		for( ServerWorld world : server.getAllLevels() ) {
-			RegistryKey<World> registrykey = world.dimension();
+		for( ServerLevel level : server.getAllLevels() ) {
+			ResourceKey<Level> registrykey = level.dimension();
 			boolean containsDimension = ServerConfig.getDimensions().contains( registrykey );
 			if( ServerConfig.getDimensionListType() == DimensionListType.SLEEP_ACTIVE && !containsDimension ||
 				ServerConfig.getDimensionListType() == DimensionListType.SLEEP_INACTIVE && containsDimension ) {
@@ -49,10 +50,10 @@ public class SleepingManager {
 			if( !SLEEPING.containsKey( registrykey ) ) {
 				SLEEPING.put( registrykey, new TreeSet<>( PLAYER_COMPARATOR ) );
 			}
-			TreeSet<ServerPlayerEntity> sleeping_players = SLEEPING.get( registrykey );
-			List<ServerPlayerEntity> world_players = world.players();
+			TreeSet<ServerPlayer> sleeping_players = SLEEPING.get( registrykey );
+			List<ServerPlayer> world_players = level.players();
 			int non_spectator_player_count = countNonSpectatorPlayers( world_players );
-			for( ServerPlayerEntity player : world_players ) {
+			for( ServerPlayer player : world_players ) {
 				if( player.isSleeping() && !sleeping_players.contains( player ) ) {
 					sleeping_players.add( player );
 					sendSleepMessage( world_players, sleeping_players.size(), non_spectator_player_count, player );
@@ -69,24 +70,24 @@ public class SleepingManager {
 			);
 			if( sleeping_percent >= ServerConfig.getSleepPercent() ||
 				non_spectator_player_count > 0 && non_spectator_player_count == sleeping_players.size() ) {
-				if( world.getGameRules().getBoolean( GameRules.RULE_DAYLIGHT ) ) {
-					long currentDayTime = world.getDayTime();
+				if( level.getGameRules().getBoolean( GameRules.RULE_DAYLIGHT ) ) {
+					long currentDayTime = level.getDayTime();
 					long newDayTime = currentDayTime + 24000L - currentDayTime % 24000L;
-					newDayTime = ForgeEventFactory.onSleepFinished( world, newDayTime, currentDayTime );
-					world.setDayTime( newDayTime );
+					newDayTime = ForgeEventFactory.onSleepFinished( level, newDayTime, currentDayTime );
+					level.setDayTime( newDayTime );
 				}
 				sleeping_players.forEach( player -> {
 					player.getSleepingPos().ifPresent(
-						pos -> player.setRespawnPosition( world.dimension(), pos, player.yRot, false, false )
+						pos -> player.setRespawnPosition( level.dimension(), pos, player.getYRot(), false, false )
 					);
 					player.stopSleeping();
 				} );
-				if( world.getGameRules().getBoolean( GameRules.RULE_WEATHER_CYCLE ) ) {
-					world.setWeatherParameters( 0, 0, false, false );
+				if( level.getGameRules().getBoolean( GameRules.RULE_WEATHER_CYCLE ) ) {
+					level.setWeatherParameters( 0, 0, false, false );
 				}
 				if( ServerConfig.getAllPlayersRest() ) {
 					world_players.forEach(
-						playerEntity -> playerEntity.resetStat( Stats.CUSTOM.get( Stats.TIME_SINCE_REST ) )
+						player -> player.resetStat( Stats.CUSTOM.get( Stats.TIME_SINCE_REST ) )
 					);
 				}
 				sendMorningMessage( world_players );
@@ -95,10 +96,10 @@ public class SleepingManager {
 		}
 	}
 	
-	private static int countNonSpectatorPlayers( List<? extends PlayerEntity> players ) {
+	private static int countNonSpectatorPlayers( List<? extends Player> players ) {
 		
 		int count = 0;
-		for( PlayerEntity player : players ) {
+		for( Player player : players ) {
 			if( !player.isSpectator() ) {
 				count++;
 			}
@@ -106,10 +107,10 @@ public class SleepingManager {
 		return count;
 	}
 	
-	private static int countSleepingPlayers( TreeSet<ServerPlayerEntity> players ) {
+	private static int countSleepingPlayers( TreeSet<ServerPlayer> players ) {
 		
 		int count = 0;
-		for( ServerPlayerEntity player : players ) {
+		for( ServerPlayer player : players ) {
 			if( player.isSleepingLongEnough() ) {
 				count++;
 			}
@@ -118,10 +119,10 @@ public class SleepingManager {
 	}
 	
 	private static void sendWakeMessage(
-		List<? extends PlayerEntity> players,
+		List<? extends Player> players,
 		int sleep_player_count,
 		int non_spectator_player_count,
-		PlayerEntity wake_player ) {
+		Player wake_player ) {
 		
 		sendMessage(
 			players,
@@ -135,10 +136,10 @@ public class SleepingManager {
 	}
 	
 	private static void sendSleepMessage(
-		List<? extends PlayerEntity> players,
+		List<? extends Player> players,
 		int sleep_player_count,
 		int non_spectator_player_count,
-		PlayerEntity wake_player ) {
+		Player wake_player ) {
 		
 		sendMessage(
 			players,
@@ -151,28 +152,28 @@ public class SleepingManager {
 		);
 	}
 	
-	private static void sendMorningMessage( List<? extends PlayerEntity> players ) {
+	private static void sendMorningMessage( List<? extends Player> players ) {
 		
-		sendMessage( players, new StringTextComponent( ServerConfig.getMorningMessage() ) );
+		sendMessage( players, new TextComponent( ServerConfig.getMorningMessage() ) );
 	}
 	
-	private static void sendMessage( List<? extends PlayerEntity> players, IFormattableTextComponent message ) {
+	private static void sendMessage( List<? extends Player> players, MutableComponent message ) {
 		
-		for( PlayerEntity player : players ) {
+		for( Player player : players ) {
 			player.sendMessage(
-				message.setStyle( Style.EMPTY.withColor( TextFormatting.YELLOW ) ),
+				message.setStyle( Style.EMPTY.withColor( TextColor.fromLegacyFormat( ChatFormatting.GRAY ) ) ),
 				Util.NIL_UUID
 			);
 		}
 	}
 	
-	private static IFormattableTextComponent buildWakeSleepMessage(
-		PlayerEntity player,
+	private static MutableComponent buildWakeSleepMessage(
+		Player player,
 		int sleep_player_count,
 		int player_count,
 		String message ) {
 		
-		return new StringTextComponent( "" ).append( player.getDisplayName() )
+		return new TextComponent( "" ).append( player.getDisplayName() )
 			.append( String.format(
 				" %s - %d/%d (%d%%)",
 				message,

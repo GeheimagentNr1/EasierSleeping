@@ -2,7 +2,7 @@ package de.geheimagentnr1.easier_sleeping.sleeping;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.WorldWorkerManager;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.fmllegacy.server.ServerLifecycleHooks;
 
 
 public class SleepingWorker implements WorldWorkerManager.IWorker {

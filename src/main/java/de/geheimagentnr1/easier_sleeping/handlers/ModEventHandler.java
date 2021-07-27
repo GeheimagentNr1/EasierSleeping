@@ -4,7 +4,7 @@ import de.geheimagentnr1.easier_sleeping.config.ServerConfig;
 import de.geheimagentnr1.easier_sleeping.elements.commands.ModArgumentTypes;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 
@@ -19,13 +19,13 @@ public class ModEventHandler {
 	}
 	
 	@SubscribeEvent
-	public static void handleModConfigLoadingEvent( ModConfig.Loading event ) {
+	public static void handleModConfigLoadingEvent( ModConfigEvent.Loading event ) {
 		
 		ServerConfig.printLoadedConfig();
 	}
 	
 	@SubscribeEvent
-	public static void handleModConfigReloadingEvent( ModConfig.Reloading event ) {
+	public static void handleModConfigReloadingEvent( ModConfigEvent.Reloading event ) {
 		
 		ServerConfig.printLoadedConfig();
 	}

@@ -9,22 +9,22 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import de.geheimagentnr1.easier_sleeping.config.DimensionListType;
 import de.geheimagentnr1.easier_sleeping.config.ServerConfig;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.command.arguments.DimensionArgument;
-import net.minecraft.command.arguments.MessageArgument;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.DimensionArgument;
+import net.minecraft.commands.arguments.MessageArgument;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
 
 
 @SuppressWarnings( "SameReturnValue" )
 public class SleepCommand {
 	
 	
-	public static void register( CommandDispatcher<CommandSource> dispatcher ) {
+	public static void register( CommandDispatcher<CommandSourceStack> dispatcher ) {
 		
-		LiteralArgumentBuilder<CommandSource> sleep = Commands.literal( "sleep" )
+		LiteralArgumentBuilder<CommandSourceStack> sleep = Commands.literal( "sleep" )
 			.requires( source -> source.hasPermission( 2 ) );
 		sleep.then( Commands.literal( "sleep_percent" )
 			.executes( SleepCommand::showSleepPercent )
@@ -64,10 +64,10 @@ public class SleepCommand {
 		dispatcher.register( sleep );
 	}
 	
-	private static int showSleepPercent( CommandContext<CommandSource> context ) {
+	private static int showSleepPercent( CommandContext<CommandSourceStack> context ) {
 		
 		context.getSource().sendSuccess(
-			new StringTextComponent( String.format(
+			new TextComponent( String.format(
 				"Sleep Percent: %d",
 				ServerConfig.getSleepPercent()
 			) ),
@@ -76,11 +76,11 @@ public class SleepCommand {
 		return Command.SINGLE_SUCCESS;
 	}
 	
-	private static int changeSleepPercent( CommandContext<CommandSource> context ) {
+	private static int changeSleepPercent( CommandContext<CommandSourceStack> context ) {
 		
 		ServerConfig.setSleepPercent( IntegerArgumentType.getInteger( context, "sleep_percent" ) );
 		context.getSource().sendSuccess(
-			new StringTextComponent( String.format(
+			new TextComponent( String.format(
 				"Sleep Percent is now: %d",
 				ServerConfig.getSleepPercent()
 			) ),
@@ -89,10 +89,10 @@ public class SleepCommand {
 		return Command.SINGLE_SUCCESS;
 	}
 	
-	private static int showWakeMessage( CommandContext<CommandSource> context ) {
+	private static int showWakeMessage( CommandContext<CommandSourceStack> context ) {
 		
 		context.getSource().sendSuccess(
-			new StringTextComponent( String.format(
+			new TextComponent( String.format(
 				"Wake Message: %s",
 				ServerConfig.getWakeMessage()
 			) ),
@@ -101,11 +101,11 @@ public class SleepCommand {
 		return Command.SINGLE_SUCCESS;
 	}
 	
-	private static int changeWakeMessage( CommandContext<CommandSource> context ) throws CommandSyntaxException {
+	private static int changeWakeMessage( CommandContext<CommandSourceStack> context ) throws CommandSyntaxException {
 		
 		ServerConfig.setWakeMessage( MessageArgument.getMessage( context, "message" ).getContents() );
 		context.getSource().sendSuccess(
-			new StringTextComponent( String.format(
+			new TextComponent( String.format(
 				"Wake Message is now: %s",
 				ServerConfig.getWakeMessage()
 			) ),
@@ -114,10 +114,10 @@ public class SleepCommand {
 		return Command.SINGLE_SUCCESS;
 	}
 	
-	private static int showSleepMessage( CommandContext<CommandSource> context ) {
+	private static int showSleepMessage( CommandContext<CommandSourceStack> context ) {
 		
 		context.getSource().sendSuccess(
-			new StringTextComponent( String.format(
+			new TextComponent( String.format(
 				"Sleep Message: %s",
 				ServerConfig.getSleepMessage()
 			) ),
@@ -126,11 +126,11 @@ public class SleepCommand {
 		return Command.SINGLE_SUCCESS;
 	}
 	
-	private static int changeSleepMessage( CommandContext<CommandSource> context ) throws CommandSyntaxException {
+	private static int changeSleepMessage( CommandContext<CommandSourceStack> context ) throws CommandSyntaxException {
 		
 		ServerConfig.setSleepMessage( MessageArgument.getMessage( context, "message" ).getContents() );
 		context.getSource().sendSuccess(
-			new StringTextComponent( String.format(
+			new TextComponent( String.format(
 				"Sleep Message is now: %s",
 				ServerConfig.getSleepMessage()
 			) ),
@@ -139,10 +139,10 @@ public class SleepCommand {
 		return Command.SINGLE_SUCCESS;
 	}
 	
-	private static int showMorningMessage( CommandContext<CommandSource> context ) {
+	private static int showMorningMessage( CommandContext<CommandSourceStack> context ) {
 		
 		context.getSource().sendSuccess(
-			new StringTextComponent( String.format(
+			new TextComponent( String.format(
 				"Morning Message: %s",
 				ServerConfig.getMorningMessage()
 			) ),
@@ -151,11 +151,11 @@ public class SleepCommand {
 		return Command.SINGLE_SUCCESS;
 	}
 	
-	private static int changeMorningMessage( CommandContext<CommandSource> context ) throws CommandSyntaxException {
+	private static int changeMorningMessage( CommandContext<CommandSourceStack> context ) throws CommandSyntaxException {
 		
 		ServerConfig.setMorningMessage( MessageArgument.getMessage( context, "message" ).getContents() );
 		context.getSource().sendSuccess(
-			new StringTextComponent( String.format(
+			new TextComponent( String.format(
 				"Morning Message is now: %s",
 				ServerConfig.getMorningMessage()
 			) ),
@@ -164,10 +164,10 @@ public class SleepCommand {
 		return Command.SINGLE_SUCCESS;
 	}
 	
-	private static int showAllPlayersRest( CommandContext<CommandSource> context ) {
+	private static int showAllPlayersRest( CommandContext<CommandSourceStack> context ) {
 		
 		context.getSource().sendSuccess(
-			new StringTextComponent( String.format(
+			new TextComponent( String.format(
 				"All players rest is: %s",
 				ServerConfig.getAllPlayersRest()
 			) ),
@@ -176,11 +176,11 @@ public class SleepCommand {
 		return Command.SINGLE_SUCCESS;
 	}
 	
-	private static int setAllPlayersRest( CommandContext<CommandSource> context ) {
+	private static int setAllPlayersRest( CommandContext<CommandSourceStack> context ) {
 		
 		ServerConfig.setAllPlayersRest( BoolArgumentType.getBool( context, "all_players_rest" ) );
 		context.getSource().sendSuccess(
-			new StringTextComponent( String.format(
+			new TextComponent( String.format(
 				"All players rest is now : %s",
 				ServerConfig.getAllPlayersRest()
 			) ),
@@ -189,14 +189,14 @@ public class SleepCommand {
 		return Command.SINGLE_SUCCESS;
 	}
 	
-	private static int showDimensions( CommandContext<CommandSource> context ) {
+	private static int showDimensions( CommandContext<CommandSourceStack> context ) {
 		
-		CommandSource source = context.getSource();
+		CommandSourceStack source = context.getSource();
 		
-		source.sendSuccess( new StringTextComponent( "Dimensions:" ), false );
-		for( RegistryKey<World> dimension : ServerConfig.getDimensions() ) {
+		source.sendSuccess( new TextComponent( "Dimensions:" ), false );
+		for( ResourceKey<Level> dimension : ServerConfig.getDimensions() ) {
 			source.sendSuccess(
-				new StringTextComponent( String.format(
+				new TextComponent( String.format(
 					" - %s",
 					dimension.location()
 				) ),
@@ -206,12 +206,12 @@ public class SleepCommand {
 		return Command.SINGLE_SUCCESS;
 	}
 	
-	private static int addDimension( CommandContext<CommandSource> context ) throws CommandSyntaxException {
+	private static int addDimension( CommandContext<CommandSourceStack> context ) throws CommandSyntaxException {
 		
-		RegistryKey<World> dimension = DimensionArgument.getDimension( context, "dimension" ).dimension();
+		ResourceKey<Level> dimension = DimensionArgument.getDimension( context, "dimension" ).dimension();
 		ServerConfig.addDimension( dimension );
 		context.getSource().sendSuccess(
-			new StringTextComponent( String.format(
+			new TextComponent( String.format(
 				"Added Dimension: %s",
 				dimension.location()
 			) ),
@@ -220,12 +220,12 @@ public class SleepCommand {
 		return Command.SINGLE_SUCCESS;
 	}
 	
-	private static int removeDimension( CommandContext<CommandSource> context ) throws CommandSyntaxException {
+	private static int removeDimension( CommandContext<CommandSourceStack> context ) throws CommandSyntaxException {
 		
-		RegistryKey<World> dimension = DimensionArgument.getDimension( context, "dimension" ).dimension();
+		ResourceKey<Level> dimension = DimensionArgument.getDimension( context, "dimension" ).dimension();
 		ServerConfig.removeDimension( dimension );
 		context.getSource().sendSuccess(
-			new StringTextComponent( String.format(
+			new TextComponent( String.format(
 				"Removed Dimension: %s",
 				dimension.location()
 			) ),
@@ -234,12 +234,12 @@ public class SleepCommand {
 		return Command.SINGLE_SUCCESS;
 	}
 	
-	private static int showDimensionListType( CommandContext<CommandSource> context ) {
+	private static int showDimensionListType( CommandContext<CommandSourceStack> context ) {
 		
-		CommandSource source = context.getSource();
+		CommandSourceStack source = context.getSource();
 		
 		source.sendSuccess(
-			new StringTextComponent( String.format(
+			new TextComponent( String.format(
 				"Dimension List Type: %s",
 				ServerConfig.getDimensionListType().name()
 			) ),
@@ -248,9 +248,9 @@ public class SleepCommand {
 		return Command.SINGLE_SUCCESS;
 	}
 	
-	private static int changeDimensionListType( CommandContext<CommandSource> context ) {
+	private static int changeDimensionListType( CommandContext<CommandSourceStack> context ) {
 		
-		CommandSource source = context.getSource();
+		CommandSourceStack source = context.getSource();
 		DimensionListType dimensionListType = DimensionListTypeArgument.getDimensionListType( context, "list_type" );
 		boolean revert = BoolArgumentType.getBool( context, "invert_list" );
 		
@@ -259,16 +259,16 @@ public class SleepCommand {
 			ServerConfig.invertDimensions();
 		}
 		source.sendSuccess(
-			new StringTextComponent( String.format(
+			new TextComponent( String.format(
 				"Dimension List Type set to: %s",
 				ServerConfig.getDimensionListType().name()
 			) ),
 			false
 		);
-		source.sendSuccess( new StringTextComponent( "Dimensions:" ), false );
-		for( RegistryKey<World> dimension : ServerConfig.getDimensions() ) {
+		source.sendSuccess( new TextComponent( "Dimensions:" ), false );
+		for( ResourceKey<Level> dimension : ServerConfig.getDimensions() ) {
 			source.sendSuccess(
-				new StringTextComponent( String.format(
+				new TextComponent( String.format(
 					" - %s",
 					dimension.location()
 				) ),

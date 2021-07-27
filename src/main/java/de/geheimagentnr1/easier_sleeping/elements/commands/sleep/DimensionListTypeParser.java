@@ -6,8 +6,8 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import de.geheimagentnr1.easier_sleeping.config.DimensionListType;
-import net.minecraft.command.ISuggestionProvider;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.network.chat.TextComponent;
 
 import java.util.Optional;
 import java.util.Set;
@@ -21,7 +21,7 @@ class DimensionListTypeParser {
 	
 	
 	private static final DynamicCommandExceptionType DIMENSION_LIST_TYPE_INVALID = new DynamicCommandExceptionType(
-		function -> new StringTextComponent( "Invalid Dimension List Type" )
+		function -> new TextComponent( "Invalid Dimension List Type" )
 	);
 	
 	private static final Set<String> DIMENSION_LIST_TYPES = getItemKeySet();
@@ -95,7 +95,7 @@ class DimensionListTypeParser {
 	
 	private CompletableFuture<Suggestions> suggestDimensionListType( SuggestionsBuilder builder ) {
 		
-		return ISuggestionProvider.suggest( DIMENSION_LIST_TYPES, builder );
+		return SharedSuggestionProvider.suggest( DIMENSION_LIST_TYPES, builder );
 	}
 	
 	//package-private

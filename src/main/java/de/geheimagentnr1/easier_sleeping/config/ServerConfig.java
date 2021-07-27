@@ -1,13 +1,13 @@
 package de.geheimagentnr1.easier_sleeping.config;
 
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.fmllegacy.server.ServerLifecycleHooks;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -39,8 +39,8 @@ public class ServerConfig {
 	
 	private static final ForgeConfigSpec.EnumValue<DimensionListType> DIMENSION_LIST_TYPE;
 	
-	private static final TreeSet<RegistryKey<World>> dimensions =
-		new TreeSet<>( Comparator.comparing( RegistryKey::location ) );
+	private static final TreeSet<ResourceKey<Level>> dimensions =
+		new TreeSet<>( Comparator.comparing( ResourceKey::location ) );
 	
 	static {
 		
@@ -63,10 +63,9 @@ public class ServerConfig {
 				"sleep voting is inactive."
 		).define(
 			"dimensions",
-			Collections.singletonList( Objects.requireNonNull( World.OVERWORLD.location() ).toString() ),
+			Collections.singletonList( Objects.requireNonNull( Level.OVERWORLD.location() ).toString() ),
 			o -> {
-				if( o instanceof List<?> ) {
-					List<?> list = (List<?>)o;
+				if( o instanceof List<?> list ) {
 					return list.isEmpty() || list.get( 0 ) instanceof String;
 				}
 				return false;
@@ -115,8 +114,8 @@ public class ServerConfig {
 		for( String read_dimension : read_dimensions ) {
 			ResourceLocation registry_name = ResourceLocation.tryParse( read_dimension );
 			if( registry_name != null ) {
-				RegistryKey<World> registrykey = RegistryKey.create( Registry.DIMENSION_REGISTRY, registry_name );
-				ServerWorld serverworld = ServerLifecycleHooks.getCurrentServer().getLevel( registrykey );
+				ResourceKey<Level> registrykey = ResourceKey.create( Registry.DIMENSION_REGISTRY, registry_name );
+				ServerLevel serverworld = ServerLifecycleHooks.getCurrentServer().getLevel( registrykey );
 				if( serverworld == null ) {
 					LOGGER.warn( "Removed unknown dimension: {}", read_dimension );
 				} else {
@@ -137,7 +136,7 @@ public class ServerConfig {
 		
 		ArrayList<String> registryNames = new ArrayList<>();
 		
-		for( RegistryKey<World> dimension : dimensions ) {
+		for( ResourceKey<Level> dimension : dimensions ) {
 			registryNames.add( Objects.requireNonNull( dimension.location() ).toString() );
 		}
 		return registryNames;
@@ -147,8 +146,8 @@ public class ServerConfig {
 		
 		ArrayList<String> newDimensionRegistryNames = new ArrayList<>();
 		
-		for( ServerWorld serverworld : ServerLifecycleHooks.getCurrentServer().getAllLevels() ) {
-			RegistryKey<World> registrykey = serverworld.dimension();
+		for( ServerLevel serverworld : ServerLifecycleHooks.getCurrentServer().getAllLevels() ) {
+			ResourceKey<Level> registrykey = serverworld.dimension();
 			if( !dimensions.contains( registrykey ) ) {
 				newDimensionRegistryNames.add( Objects.requireNonNull( registrykey.location() ).toString() );
 				
@@ -209,12 +208,12 @@ public class ServerConfig {
 		ALL_PLAYERS_REST.set( all_player_rest );
 	}
 	
-	public static TreeSet<RegistryKey<World>> getDimensions() {
+	public static TreeSet<ResourceKey<Level>> getDimensions() {
 		
 		return dimensions;
 	}
 	
-	public static synchronized void addDimension( RegistryKey<World> dimension ) {
+	public static synchronized void addDimension( ResourceKey<Level> dimension ) {
 		
 		if( !dimensions.contains( dimension ) ) {
 			dimensions.add( dimension );
@@ -222,7 +221,7 @@ public class ServerConfig {
 		}
 	}
 	
-	public static synchronized void removeDimension( RegistryKey<World> dimension ) {
+	public static synchronized void removeDimension( ResourceKey<Level> dimension ) {
 		
 		if( dimensions.contains( dimension ) ) {
 			dimensions.remove( dimension );
