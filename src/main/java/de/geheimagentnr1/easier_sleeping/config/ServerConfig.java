@@ -54,8 +54,8 @@ public class ServerConfig {
 			.define( "morning_message", "Good Morning" );
 		ALL_PLAYERS_REST = BUILDER.comment(
 			"If true, the time since last rest is reset for all players, if enough other players are successfully " +
-				"sleeping. So not every player has to sleep to prevent phantom spawning for him."
-		).define( "all_players_rest", false );
+				"sleeping. So not every player has to sleep to prevent phantom spawning for him." )
+			.define( "all_players_rest", false );
 		DIMENSIONS = BUILDER.comment(
 			"If dimension_list_type is set to SLEEP_ACTIVE, the list is the list of dimensions in which the sleep " +
 				"voting is active.",

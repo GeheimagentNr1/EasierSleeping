@@ -86,9 +86,7 @@ public class SleepingManager {
 					level.setWeatherParameters( 0, 0, false, false );
 				}
 				if( ServerConfig.getAllPlayersRest() ) {
-					world_players.forEach(
-						player -> player.resetStat( Stats.CUSTOM.get( Stats.TIME_SINCE_REST ) )
-					);
+					world_players.forEach( player -> player.resetStat( Stats.CUSTOM.get( Stats.TIME_SINCE_REST ) ) );
 				}
 				sendMorningMessage( world_players );
 				sleeping_players.clear();

@@ -151,7 +151,8 @@ public class SleepCommand {
 		return Command.SINGLE_SUCCESS;
 	}
 	
-	private static int changeMorningMessage( CommandContext<CommandSourceStack> context ) throws CommandSyntaxException {
+	private static int changeMorningMessage( CommandContext<CommandSourceStack> context )
+		throws CommandSyntaxException {
 		
 		ServerConfig.setMorningMessage( MessageArgument.getMessage( context, "message" ).getContents() );
 		context.getSource().sendSuccess(
