@@ -115,8 +115,8 @@ public class ServerConfig {
 			ResourceLocation registry_name = ResourceLocation.tryParse( read_dimension );
 			if( registry_name != null ) {
 				ResourceKey<Level> registrykey = ResourceKey.create( Registry.DIMENSION_REGISTRY, registry_name );
-				ServerLevel serverworld = ServerLifecycleHooks.getCurrentServer().getLevel( registrykey );
-				if( serverworld == null ) {
+				ServerLevel serverLevel = ServerLifecycleHooks.getCurrentServer().getLevel( registrykey );
+				if( serverLevel == null ) {
 					LOGGER.warn( "Removed unknown dimension: {}", read_dimension );
 				} else {
 					dimensions.add( registrykey );
@@ -146,8 +146,8 @@ public class ServerConfig {
 		
 		ArrayList<String> newDimensionRegistryNames = new ArrayList<>();
 		
-		for( ServerLevel serverworld : ServerLifecycleHooks.getCurrentServer().getAllLevels() ) {
-			ResourceKey<Level> registrykey = serverworld.dimension();
+		for( ServerLevel serverLevel : ServerLifecycleHooks.getCurrentServer().getAllLevels() ) {
+			ResourceKey<Level> registrykey = serverLevel.dimension();
 			if( !dimensions.contains( registrykey ) ) {
 				newDimensionRegistryNames.add( Objects.requireNonNull( registrykey.location() ).toString() );
 				

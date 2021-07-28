@@ -51,16 +51,16 @@ public class SleepingManager {
 				SLEEPING.put( registrykey, new TreeSet<>( PLAYER_COMPARATOR ) );
 			}
 			TreeSet<ServerPlayer> sleeping_players = SLEEPING.get( registrykey );
-			List<ServerPlayer> world_players = level.players();
-			int non_spectator_player_count = countNonSpectatorPlayers( world_players );
-			for( ServerPlayer player : world_players ) {
+			List<ServerPlayer> level_players = level.players();
+			int non_spectator_player_count = countNonSpectatorPlayers( level_players );
+			for( ServerPlayer player : level_players ) {
 				if( player.isSleeping() && !sleeping_players.contains( player ) ) {
 					sleeping_players.add( player );
-					sendSleepMessage( world_players, sleeping_players.size(), non_spectator_player_count, player );
+					sendSleepMessage( level_players, sleeping_players.size(), non_spectator_player_count, player );
 				} else {
 					if( !player.isSleeping() && sleeping_players.contains( player ) ) {
 						sleeping_players.remove( player );
-						sendWakeMessage( world_players, sleeping_players.size(), non_spectator_player_count, player );
+						sendWakeMessage( level_players, sleeping_players.size(), non_spectator_player_count, player );
 					}
 				}
 			}
@@ -86,9 +86,9 @@ public class SleepingManager {
 					level.setWeatherParameters( 0, 0, false, false );
 				}
 				if( ServerConfig.getAllPlayersRest() ) {
-					world_players.forEach( player -> player.resetStat( Stats.CUSTOM.get( Stats.TIME_SINCE_REST ) ) );
+					level_players.forEach( player -> player.resetStat( Stats.CUSTOM.get( Stats.TIME_SINCE_REST ) ) );
 				}
-				sendMorningMessage( world_players );
+				sendMorningMessage( level_players );
 				sleeping_players.clear();
 			}
 		}
