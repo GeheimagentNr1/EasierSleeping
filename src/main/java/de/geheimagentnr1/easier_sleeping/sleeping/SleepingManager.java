@@ -55,8 +55,14 @@ public class SleepingManager {
 			int non_spectator_player_count = countNonSpectatorPlayers( level_players );
 			for( ServerPlayer player : level_players ) {
 				if( player.isSleeping() && !sleeping_players.contains( player ) ) {
-					sleeping_players.add( player );
-					sendSleepMessage( level_players, sleeping_players.size(), non_spectator_player_count, player );
+					if( player.getSleepingPos()
+						.stream()
+						.noneMatch( pos -> ServerConfig.getIgnoredBedBlocks().contains( level.getBlockState( pos )
+							.getBlock()
+							.getRegistryName() ) ) ) {
+						sleeping_players.add( player );
+						sendSleepMessage( level_players, sleeping_players.size(), non_spectator_player_count, player );
+					}
 				} else {
 					if( !player.isSleeping() && sleeping_players.contains( player ) ) {
 						sleeping_players.remove( player );

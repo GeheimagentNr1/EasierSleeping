@@ -39,8 +39,12 @@ public class ServerConfig {
 	
 	private static final ForgeConfigSpec.EnumValue<DimensionListType> DIMENSION_LIST_TYPE;
 	
+	private static final ForgeConfigSpec.ConfigValue<List<String>> BLOCK_BLACKLIST;
+	
 	private static final TreeSet<ResourceKey<Level>> dimensions =
 		new TreeSet<>( Comparator.comparing( ResourceKey::location ) );
+	
+	private static final TreeSet<ResourceLocation> blockBlacklist = new TreeSet<>();
 	
 	static {
 		
@@ -77,6 +81,16 @@ public class ServerConfig {
 			"If dimension_list_type is set to SLEEP_INACTIVE, the dimension list is the list of dimensions in " +
 				"which the sleep voting is inactive."
 		).defineEnum( "dimension_list_type", DimensionListType.SLEEP_ACTIVE );
+		BLOCK_BLACKLIST = BUILDER.comment( "Block names of beds being ignored for sleep percentage." )
+			.define(
+				"block_blacklist",
+				List.of(),
+				o -> {
+					if( o instanceof List<?> list ) {
+						return list.isEmpty() || list.get( 0 ) instanceof String;
+					}
+					return false;
+				} );
 		
 		CONFIG = BUILDER.build();
 	}
@@ -100,7 +114,9 @@ public class ServerConfig {
 	
 	public static synchronized void checkAndPrintConfig() {
 		
-		if( checkCorrectAndReadDimensions() ) {
+		boolean areDimensionCorrected = checkCorrectAndReadDimensions();
+		boolean areBlocksOfBlacklistCorrected = checkCorrectAndReadBlockBlacklist();
+		if( areDimensionCorrected || areBlocksOfBlacklistCorrected ) {
 			LOGGER.info( "\"{}\" Server Config corrected", MOD_NAME );
 			printConfig();
 		}
@@ -156,6 +172,40 @@ public class ServerConfig {
 		newDimensionRegistryNames.sort( String::compareTo );
 		DIMENSIONS.set( newDimensionRegistryNames );
 		checkAndPrintConfig();
+	}
+	
+	private static synchronized boolean checkCorrectAndReadBlockBlacklist() {
+		
+		ArrayList<String> block_blacklist = new ArrayList<>( BLOCK_BLACKLIST.get() );
+		
+		blockBlacklist.clear();
+		for( String block : block_blacklist ) {
+			ResourceLocation registry_name = ResourceLocation.tryParse( block );
+			if( registry_name != null ) {
+				if( Registry.BLOCK.getOptional( registry_name ).isPresent() ) {
+					blockBlacklist.add( registry_name );
+				} else {
+					LOGGER.warn( "Removed unknown block: {}", block );
+				}
+			} else {
+				LOGGER.warn( "Removed invalid block registry name {}", block );
+			}
+		}
+		if( BLOCK_BLACKLIST.get().size() != blockBlacklist.size() ) {
+			BLOCK_BLACKLIST.set( blockBlacklistToRegistryNameList() );
+			return true;
+		}
+		return false;
+	}
+	
+	private static synchronized ArrayList<String> blockBlacklistToRegistryNameList() {
+		
+		ArrayList<String> registryNames = new ArrayList<>();
+		
+		for( ResourceLocation block : blockBlacklist ) {
+			registryNames.add( Objects.requireNonNull( block ).toString() );
+		}
+		return registryNames;
 	}
 	
 	public static int getSleepPercent() {
@@ -237,5 +287,10 @@ public class ServerConfig {
 	public static void setDimensionListType( DimensionListType dimensionListType ) {
 		
 		DIMENSION_LIST_TYPE.set( dimensionListType );
+	}
+	
+	public static TreeSet<ResourceLocation> getIgnoredBedBlocks() {
+		
+		return blockBlacklist;
 	}
 }

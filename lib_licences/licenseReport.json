@@ -377,14 +377,14 @@
   {
     "project": "Bootstrap launcher",
     "description": "Allows bootstrapping a modularized environment from a classpath one",
-    "version": "0.1.15",
+    "version": "0.1.16",
     "developers": [
       "cpw"
     ],
     "url": "https://github.com/cpw/bootstraplauncher",
     "year": null,
     "licenses": [],
-    "dependency": "cpw.mods:bootstraplauncher:0.1.15"
+    "dependency": "cpw.mods:bootstraplauncher:0.1.16"
   },
   {
     "project": "brigadier",
@@ -532,7 +532,7 @@
   {
     "project": "fmlcore",
     "description": "Modifactions to Minecraft to enable mod developers.",
-    "version": "1.17.1-37.0.12",
+    "version": "1.17.1-37.0.25",
     "developers": [],
     "url": "https://github.com/MinecraftForge/MinecraftForge",
     "year": null,
@@ -542,12 +542,12 @@
         "license_url": "https://github.com/MinecraftForge/MinecraftForge/blob/1.13-pre/LICENSE.txt"
       }
     ],
-    "dependency": "net.minecraftforge:fmlcore:1.17.1-37.0.12"
+    "dependency": "net.minecraftforge:fmlcore:1.17.1-37.0.25"
   },
   {
     "project": "fmlloader",
     "description": "Modifactions to Minecraft to enable mod developers.",
-    "version": "1.17.1-37.0.12",
+    "version": "1.17.1-37.0.25",
     "developers": [],
     "url": "https://github.com/MinecraftForge/MinecraftForge",
     "year": null,
@@ -557,17 +557,17 @@
         "license_url": "https://github.com/MinecraftForge/MinecraftForge/blob/1.13-pre/LICENSE.txt"
       }
     ],
-    "dependency": "net.minecraftforge:fmlloader:1.17.1-37.0.12"
+    "dependency": "net.minecraftforge:fmlloader:1.17.1-37.0.25"
   },
   {
     "project": "forge",
     "description": null,
-    "version": "1.17.1-37.0.12_mapped_official_1.17.1",
+    "version": "1.17.1-37.0.25_mapped_official_1.17.1",
     "developers": [],
     "url": null,
     "year": null,
     "licenses": [],
-    "dependency": "net.minecraftforge:forge:1.17.1-37.0.12_mapped_official_1.17.1"
+    "dependency": "net.minecraftforge:forge:1.17.1-37.0.25_mapped_official_1.17.1"
   },
   {
     "project": "Forge Service Provider Interface",
@@ -714,7 +714,7 @@
   {
     "project": "javafmllanguage",
     "description": "Modifactions to Minecraft to enable mod developers.",
-    "version": "1.17.1-37.0.12",
+    "version": "1.17.1-37.0.25",
     "developers": [],
     "url": "https://github.com/MinecraftForge/MinecraftForge",
     "year": null,
@@ -724,7 +724,7 @@
         "license_url": "https://github.com/MinecraftForge/MinecraftForge/blob/1.13-pre/LICENSE.txt"
       }
     ],
-    "dependency": "net.minecraftforge:javafmllanguage:1.17.1-37.0.12"
+    "dependency": "net.minecraftforge:javafmllanguage:1.17.1-37.0.25"
   },
   {
     "project": "JInput",
@@ -969,7 +969,7 @@
   {
     "project": "mclanguage",
     "description": "Modifactions to Minecraft to enable mod developers.",
-    "version": "1.17.1-37.0.12",
+    "version": "1.17.1-37.0.25",
     "developers": [],
     "url": "https://github.com/MinecraftForge/MinecraftForge",
     "year": null,
@@ -979,7 +979,7 @@
         "license_url": "https://github.com/MinecraftForge/MinecraftForge/blob/1.13-pre/LICENSE.txt"
       }
     ],
-    "dependency": "net.minecraftforge:mclanguage:1.17.1-37.0.12"
+    "dependency": "net.minecraftforge:mclanguage:1.17.1-37.0.25"
   },
   {
     "project": "MergeTool",
@@ -1119,14 +1119,14 @@
   {
     "project": "Secure Modular Jar handler",
     "description": "Making the Java modular system provide security information",
-    "version": "0.9.46",
+    "version": "0.9.48",
     "developers": [
       "cpw"
     ],
     "url": "https://github.com/cpw/securejarhandler",
     "year": null,
     "licenses": [],
-    "dependency": "cpw.mods:securejarhandler:0.9.46"
+    "dependency": "cpw.mods:securejarhandler:0.9.48"
   },
   {
     "project": "SLF4J API Module",
