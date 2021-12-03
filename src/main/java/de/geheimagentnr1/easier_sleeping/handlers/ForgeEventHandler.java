@@ -7,9 +7,9 @@ import de.geheimagentnr1.easier_sleeping.sleeping.SleepingManager;
 import de.geheimagentnr1.easier_sleeping.sleeping.SleepingWorker;
 import net.minecraftforge.common.WorldWorkerManager;
 import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fmlserverevents.FMLServerStartingEvent;
 
 
 @Mod.EventBusSubscriber( modid = EasierSleeping.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE )
@@ -17,7 +17,7 @@ public class ForgeEventHandler {
 	
 	
 	@SubscribeEvent
-	public static void handlerServerStartingEvent( FMLServerStartingEvent event ) {
+	public static void handlerServerStartingEvent( ServerStartingEvent event ) {
 		
 		ServerConfig.checkAndPrintConfig();
 		SleepingManager.init();
