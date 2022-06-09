@@ -3,11 +3,11 @@ package de.geheimagentnr1.easier_sleeping.sleeping;
 import de.geheimagentnr1.easier_sleeping.config.DimensionListType;
 import de.geheimagentnr1.easier_sleeping.config.ServerConfig;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
+import net.minecraft.core.Registry;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -57,9 +57,10 @@ public class SleepingManager {
 				if( player.isSleeping() && !sleeping_players.contains( player ) ) {
 					if( player.getSleepingPos()
 						.stream()
-						.noneMatch( pos -> ServerConfig.getIgnoredBedBlocks().contains( level.getBlockState( pos )
-							.getBlock()
-							.getRegistryName() ) ) ) {
+						.noneMatch( pos ->
+							ServerConfig.getIgnoredBedBlocks().contains(
+								Registry.BLOCK.getKey( level.getBlockState( pos ).getBlock() )
+							) ) ) {
 						sleeping_players.add( player );
 						sendSleepMessage( level_players, sleeping_players.size(), non_spectator_player_count, player );
 					}
@@ -158,15 +159,14 @@ public class SleepingManager {
 	
 	private static void sendMorningMessage( List<? extends Player> players ) {
 		
-		sendMessage( players, new TextComponent( ServerConfig.getMorningMessage() ) );
+		sendMessage( players, Component.literal( ServerConfig.getMorningMessage() ) );
 	}
 	
 	private static void sendMessage( List<? extends Player> players, MutableComponent message ) {
 		
 		for( Player player : players ) {
-			player.sendMessage(
-				message.setStyle( Style.EMPTY.withColor( TextColor.fromLegacyFormat( ChatFormatting.GRAY ) ) ),
-				Util.NIL_UUID
+			player.sendSystemMessage(
+				message.setStyle( Style.EMPTY.withColor( TextColor.fromLegacyFormat( ChatFormatting.GRAY ) ) )
 			);
 		}
 	}
@@ -177,7 +177,7 @@ public class SleepingManager {
 		int player_count,
 		String message ) {
 		
-		return new TextComponent( "" ).append( player.getDisplayName() )
+		return Component.literal( "" ).append( player.getDisplayName() )
 			.append( String.format(
 				" %s - %d/%d (%d%%)",
 				message,

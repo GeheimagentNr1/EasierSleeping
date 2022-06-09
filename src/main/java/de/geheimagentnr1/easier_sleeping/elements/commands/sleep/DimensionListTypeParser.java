@@ -7,7 +7,7 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import de.geheimagentnr1.easier_sleeping.config.DimensionListType;
 import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 
 import java.util.Optional;
 import java.util.Set;
@@ -21,7 +21,7 @@ class DimensionListTypeParser {
 	
 	
 	private static final DynamicCommandExceptionType DIMENSION_LIST_TYPE_INVALID = new DynamicCommandExceptionType(
-		function -> new TextComponent( "Invalid Dimension List Type" )
+		function -> Component.literal( "Invalid Dimension List Type" )
 	);
 	
 	private static final Set<String> DIMENSION_LIST_TYPES = getItemKeySet();
