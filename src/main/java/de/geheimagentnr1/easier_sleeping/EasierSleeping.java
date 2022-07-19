@@ -41,13 +41,6 @@ public class EasierSleeping {
 	public EasierSleeping() {
 		
 		ModLoadingContext.get().registerConfig( ModConfig.Type.SERVER, ServerConfig.CONFIG );
-		ModLoadingContext.get().registerExtensionPoint(
-			IExtensionPoint.DisplayTest.class,
-			() -> new IExtensionPoint.DisplayTest(
-				() -> NetworkConstants.IGNORESERVERONLY,
-				( remote, isServer ) -> true
-			)
-		);
 		COMMAND_ARGUMENT_TYPES.register( FMLJavaModLoadingContext.get().getModEventBus());
 	}
 }
