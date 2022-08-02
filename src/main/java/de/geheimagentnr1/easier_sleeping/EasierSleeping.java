@@ -6,12 +6,10 @@ import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.core.Registry;
-import net.minecraftforge.fml.IExtensionPoint;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.network.NetworkConstants;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 
@@ -41,6 +39,6 @@ public class EasierSleeping {
 	public EasierSleeping() {
 		
 		ModLoadingContext.get().registerConfig( ModConfig.Type.SERVER, ServerConfig.CONFIG );
-		COMMAND_ARGUMENT_TYPES.register( FMLJavaModLoadingContext.get().getModEventBus());
+		COMMAND_ARGUMENT_TYPES.register( FMLJavaModLoadingContext.get().getModEventBus() );
 	}
 }
