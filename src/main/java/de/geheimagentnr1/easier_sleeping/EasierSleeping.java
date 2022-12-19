@@ -5,7 +5,7 @@ import de.geheimagentnr1.easier_sleeping.elements.commands.sleep.DimensionListTy
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -22,7 +22,7 @@ public class EasierSleeping {
 	public static final String MODID = "easier_sleeping";
 	
 	private static final DeferredRegister<ArgumentTypeInfo<?, ?>> COMMAND_ARGUMENT_TYPES = DeferredRegister.create(
-		Registry.COMMAND_ARGUMENT_TYPE_REGISTRY,
+		Registries.COMMAND_ARGUMENT_TYPE,
 		MODID
 	);
 	

@@ -3,7 +3,7 @@ package de.geheimagentnr1.easier_sleeping.sleeping;
 import de.geheimagentnr1.easier_sleeping.config.DimensionListType;
 import de.geheimagentnr1.easier_sleeping.config.ServerConfig;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
@@ -59,7 +59,7 @@ public class SleepingManager {
 						.stream()
 						.noneMatch( pos ->
 							ServerConfig.getIgnoredBedBlocks().contains(
-								Registry.BLOCK.getKey( level.getBlockState( pos ).getBlock() )
+								BuiltInRegistries.BLOCK.getKey( level.getBlockState( pos ).getBlock() )
 							) ) ) {
 						sleeping_players.add( player );
 						sendSleepMessage( level_players, sleeping_players.size(), non_spectator_player_count, player );
@@ -88,6 +88,7 @@ public class SleepingManager {
 						pos -> player.setRespawnPosition( level.dimension(), pos, player.getYRot(), false, false )
 					);
 					player.stopSleeping();
+					//TODO player.stopSleepInBed(false, false);
 				} );
 				if( level.getGameRules().getBoolean( GameRules.RULE_WEATHER_CYCLE ) ) {
 					level.setWeatherParameters( 0, 0, false, false );

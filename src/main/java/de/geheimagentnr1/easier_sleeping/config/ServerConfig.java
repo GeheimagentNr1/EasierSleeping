@@ -1,6 +1,7 @@
 package de.geheimagentnr1.easier_sleeping.config;
 
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -57,7 +58,8 @@ public class ServerConfig {
 		MORNING_MESSAGE = BUILDER.comment( "Message shown, if the night was skipped" )
 			.define( "morning_message", "Good Morning" );
 		ALL_PLAYERS_REST = BUILDER.comment(
-				"If true, the time since last rest is reset for all players, if enough other players are successfully" +
+				"If true, the time since last rest is reset for all players, if enough other players are " +
+					"successfully" +
 					" " +
 					"sleeping. So not every player has to sleep to prevent phantom spawning for him." )
 			.define( "all_players_rest", false );
@@ -132,7 +134,7 @@ public class ServerConfig {
 		for( String read_dimension : read_dimensions ) {
 			ResourceLocation registry_name = ResourceLocation.tryParse( read_dimension );
 			if( registry_name != null ) {
-				ResourceKey<Level> registrykey = ResourceKey.create( Registry.DIMENSION_REGISTRY, registry_name );
+				ResourceKey<Level> registrykey = ResourceKey.create( Registries.DIMENSION, registry_name );
 				ServerLevel serverLevel = ServerLifecycleHooks.getCurrentServer().getLevel( registrykey );
 				if( serverLevel == null ) {
 					LOGGER.warn( "Removed unknown dimension: {}", read_dimension );
@@ -184,7 +186,7 @@ public class ServerConfig {
 		for( String block : block_blacklist ) {
 			ResourceLocation registry_name = ResourceLocation.tryParse( block );
 			if( registry_name != null ) {
-				if( Registry.BLOCK.getOptional( registry_name ).isPresent() ) {
+				if( BuiltInRegistries.BLOCK.getOptional( registry_name ).isPresent() ) {
 					blockBlacklist.add( registry_name );
 				} else {
 					LOGGER.warn( "Removed unknown block: {}", block );
