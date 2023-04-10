@@ -86,7 +86,7 @@ public class SleepingManager {
 					player.getSleepingPos().ifPresent(
 						pos -> player.setRespawnPosition( level.dimension(), pos, player.getYRot(), false, false )
 					);
-					player.stopSleeping();
+					player.stopSleepInBed(false, false);
 				} );
 				if( level.getGameRules().getBoolean( GameRules.RULE_WEATHER_CYCLE ) ) {
 					level.setWeatherParameters( 0, 0, false, false );
