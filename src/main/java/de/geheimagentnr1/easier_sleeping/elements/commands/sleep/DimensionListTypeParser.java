@@ -8,6 +8,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import de.geheimagentnr1.easier_sleeping.config.DimensionListType;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.Set;
@@ -20,12 +21,15 @@ import java.util.function.Function;
 class DimensionListTypeParser {
 	
 	
+	@NotNull
 	private static final DynamicCommandExceptionType DIMENSION_LIST_TYPE_INVALID = new DynamicCommandExceptionType(
 		function -> Component.literal( "Invalid Dimension List Type" )
 	);
 	
+	@NotNull
 	private static final Set<String> DIMENSION_LIST_TYPES = getItemKeySet();
 	
+	@NotNull
 	private final StringReader reader;
 	
 	private DimensionListType dimensionListType;
@@ -33,11 +37,12 @@ class DimensionListTypeParser {
 	private Function<SuggestionsBuilder, CompletableFuture<Suggestions>> suggestionsBuilder;
 	
 	//package-private
-	DimensionListTypeParser( StringReader _reader ) {
+	DimensionListTypeParser( @NotNull StringReader _reader ) {
 		
 		reader = _reader;
 	}
 	
+	@NotNull
 	private static Set<String> getItemKeySet() {
 		
 		Set<String> keySet = new TreeSet<>();
@@ -49,6 +54,7 @@ class DimensionListTypeParser {
 	}
 	
 	//package-private
+	@NotNull
 	DimensionListType getDimensionListType() {
 		
 		return dimensionListType;
@@ -68,7 +74,8 @@ class DimensionListTypeParser {
 		} );
 	}
 	
-	private Optional<DimensionListType> getItemForRegistry( String dimensionListTypeString ) {
+	@NotNull
+	private Optional<DimensionListType> getItemForRegistry( @NotNull String dimensionListTypeString ) {
 		
 		for( DimensionListType forDimensionListType : DimensionListType.values() ) {
 			if( forDimensionListType.name().equals( dimensionListTypeString ) ) {
@@ -80,6 +87,7 @@ class DimensionListTypeParser {
 	
 	//package-private
 	@SuppressWarnings( "ReturnOfThis" )
+	@NotNull
 	DimensionListTypeParser parse() throws CommandSyntaxException {
 		
 		suggestionsBuilder = this::suggestDimensionListType;
@@ -88,18 +96,21 @@ class DimensionListTypeParser {
 		return this;
 	}
 	
-	private CompletableFuture<Suggestions> suggestDimensionListTypeFuture( SuggestionsBuilder builder ) {
+	@NotNull
+	private CompletableFuture<Suggestions> suggestDimensionListTypeFuture( @NotNull SuggestionsBuilder builder ) {
 		
 		return builder.buildFuture();
 	}
 	
-	private CompletableFuture<Suggestions> suggestDimensionListType( SuggestionsBuilder builder ) {
+	@NotNull
+	private CompletableFuture<Suggestions> suggestDimensionListType( @NotNull SuggestionsBuilder builder ) {
 		
 		return SharedSuggestionProvider.suggest( DIMENSION_LIST_TYPES, builder );
 	}
 	
 	//package-private
-	CompletableFuture<Suggestions> fillSuggestions( SuggestionsBuilder builder ) {
+	@NotNull
+	CompletableFuture<Suggestions> fillSuggestions( @NotNull SuggestionsBuilder builder ) {
 		
 		return suggestionsBuilder.apply( builder.createOffset( reader.getCursor() ) );
 	}

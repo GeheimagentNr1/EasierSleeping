@@ -1,12 +1,18 @@
 package de.geheimagentnr1.easier_sleeping.sleeping;
 
+import lombok.RequiredArgsConstructor;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.WorldWorkerManager;
 import net.minecraftforge.server.ServerLifecycleHooks;
+import org.jetbrains.annotations.NotNull;
 
 
+@RequiredArgsConstructor
 public class SleepingWorker implements WorldWorkerManager.IWorker {
 	
+	
+	@NotNull
+	private final SleepingManager sleepingManager;
 	
 	@Override
 	public boolean hasWork() {
@@ -26,7 +32,7 @@ public class SleepingWorker implements WorldWorkerManager.IWorker {
 		if( server.getTickCount() % 20 != 0 ) {
 			return false;
 		}
-		SleepingManager.updateSleepingPlayers( server );
+		sleepingManager.updateSleepingPlayers( server );
 		return false;
 	}
 }

@@ -1,92 +1,126 @@
 package de.geheimagentnr1.easier_sleeping.config;
 
+import de.geheimagentnr1.minecraft_forge_api.AbstractMod;
+import de.geheimagentnr1.minecraft_forge_api.config.AbstractConfig;
+import lombok.extern.log4j.Log4j2;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.server.ServerLifecycleHooks;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
 
-public class ServerConfig {
+@Log4j2
+public class ServerConfig extends AbstractConfig {
 	
 	
-	private static final Logger LOGGER = LogManager.getLogger( ServerConfig.class );
+	@NotNull
+	private static final String SLEEP_PERCENT_KEY = "sleep_percent";
 	
-	private static final String MOD_NAME = ModLoadingContext.get().getActiveContainer().getModInfo().getDisplayName();
+	@NotNull
+	private static final String SLEEP_MESSAGE_KEY = "sleep_message";
 	
-	private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
+	@NotNull
+	private static final String WAKE_MESSAGE_KEY = "wake_message";
 	
-	public static final ForgeConfigSpec CONFIG;
+	@NotNull
+	private static final String MORNING_MESSAGE_KEY = "morning_message";
 	
-	private static final ForgeConfigSpec.IntValue SLEEP_PERCENT;
+	@NotNull
+	private static final String ALL_PLAYERS_REST_KEY = "all_players_rest";
 	
-	private static final ForgeConfigSpec.ConfigValue<String> SLEEP_MESSAGE;
+	@NotNull
+	private static final String DIMENSIONS_KEY = "dimensions";
 	
-	private static final ForgeConfigSpec.ConfigValue<String> WAKE_MESSAGE;
+	@NotNull
+	private static final String DIMENSION_LIST_TYPE_KEY = "dimension_list_type";
 	
-	private static final ForgeConfigSpec.ConfigValue<String> MORNING_MESSAGE;
+	@NotNull
+	private static final String BLOCK_BLACKLIST_KEY = "block_blacklist";
 	
-	private static final ForgeConfigSpec.BooleanValue ALL_PLAYERS_REST;
-	
-	private static final ForgeConfigSpec.ConfigValue<List<String>> DIMENSIONS;
-	
-	private static final ForgeConfigSpec.EnumValue<DimensionListType> DIMENSION_LIST_TYPE;
-	
-	private static final ForgeConfigSpec.ConfigValue<List<String>> BLOCK_BLACKLIST;
-	
-	private static final TreeSet<ResourceKey<Level>> dimensions =
+	@NotNull
+	private final TreeSet<ResourceKey<Level>> dimensions =
 		new TreeSet<>( Comparator.comparing( ResourceKey::location ) );
 	
-	private static final TreeSet<ResourceLocation> blockBlacklist = new TreeSet<>();
+	@NotNull
+	private final TreeSet<ResourceLocation> blockBlacklist = new TreeSet<>();
 	
-	static {
+	public ServerConfig( @NotNull AbstractMod _abstractMod ) {
 		
-		SLEEP_PERCENT = BUILDER.comment( "Percentage of players required to skip the night." )
-			.defineInRange( "sleep_percent", 50, 0, 100 );
-		SLEEP_MESSAGE = BUILDER.comment( "Message shown, if a player goes to bed" )
-			.define( "sleep_message", "is now in bed." );
-		WAKE_MESSAGE = BUILDER.comment( "Message shown, if a player leaves his bed" )
-			.define( "wake_message", "stood up." );
-		MORNING_MESSAGE = BUILDER.comment( "Message shown, if the night was skipped" )
-			.define( "morning_message", "Good Morning" );
-		ALL_PLAYERS_REST = BUILDER.comment(
-				"If true, the time since last rest is reset for all players, if enough other players are " +
-					"successfully" +
-					" " +
-					"sleeping. So not every player has to sleep to prevent phantom spawning for him." )
-			.define( "all_players_rest", false );
-		DIMENSIONS = BUILDER.comment(
-			"If dimension_list_type is set to SLEEP_ACTIVE, the list is the list of dimensions in which the sleep " +
-				"voting is active.",
-			"If dimension_list_type is set to SLEEP_INACTIVE, the list is the list of dimensions in which the " +
-				"sleep voting is inactive."
-		).define(
-			"dimensions",
-			Collections.singletonList( Objects.requireNonNull( Level.OVERWORLD.location() ).toString() ),
-			o -> {
-				if( o instanceof List<?> list ) {
-					return list.isEmpty() || list.get( 0 ) instanceof String;
-				}
-				return false;
-			}
+		super( _abstractMod );
+	}
+	
+	@NotNull
+	@Override
+	public ModConfig.Type type() {
+		
+		return ModConfig.Type.SERVER;
+	}
+	
+	@Override
+	public boolean isEarlyLoad() {
+		
+		return false;
+	}
+	
+	@Override
+	protected void registerConfigValues() {
+		
+		registerConfigValue(
+			"Percentage of players required to skip the night.",
+			SLEEP_PERCENT_KEY,
+			( builder, path ) -> builder.defineInRange( path, 50, 0, 100 )
 		);
-		DIMENSION_LIST_TYPE = BUILDER.comment(
-			"If dimension_list_type is set to SLEEP_ACTIVE, the dimension list is the list of dimensions in which " +
-				"the sleep voting is active.",
-			"If dimension_list_type is set to SLEEP_INACTIVE, the dimension list is the list of dimensions in " +
-				"which the sleep voting is inactive."
-		).defineEnum( "dimension_list_type", DimensionListType.SLEEP_ACTIVE );
-		BLOCK_BLACKLIST = BUILDER.comment( "Block names of beds being ignored for sleep percentage." )
-			.define(
-				"block_blacklist",
+		registerConfigValue( "Message shown, if a player goes to bed", SLEEP_MESSAGE_KEY, "is now in bed." );
+		registerConfigValue( "Message shown, if a player leaves his bed", WAKE_MESSAGE_KEY, "stood up." );
+		registerConfigValue( "Message shown, if the night was skipped", MORNING_MESSAGE_KEY, "Good Morning" );
+		registerConfigValue(
+			"If true, the time since last rest is reset for all players, if enough other players are " +
+				"successfully sleeping. So not every player has to sleep to prevent phantom spawning for him.",
+			ALL_PLAYERS_REST_KEY,
+			false
+		);
+		registerConfigValue(
+			List.of(
+				"If dimension_list_type is set to SLEEP_ACTIVE, the list is the list of dimensions in which the " +
+					"sleep voting is active.",
+				"If dimension_list_type is set to SLEEP_INACTIVE, the list is the list of dimensions in which the " +
+					"sleep voting is inactive."
+			),
+			DIMENSIONS_KEY,
+			( builder, path ) -> builder.define(
+				path,
+				Collections.singletonList( Objects.requireNonNull( Level.OVERWORLD.location() ).toString() ),
+				o -> {
+					if( o instanceof List<?> list ) {
+						return list.isEmpty() || list.get( 0 ) instanceof String;
+					}
+					return false;
+				}
+			)
+		);
+		registerConfigValue(
+			List.of(
+				"If dimension_list_type is set to SLEEP_ACTIVE, the dimension list is the list of dimensions in " +
+					"which the sleep voting is active.",
+				"If dimension_list_type is set to SLEEP_INACTIVE, the dimension list is the list of dimensions in " +
+					"which the sleep voting is inactive."
+			),
+			DIMENSION_LIST_TYPE_KEY,
+			( builder, path ) -> builder.defineEnum( path, DimensionListType.SLEEP_ACTIVE )
+		);
+		registerConfigValue(
+			"Block names of beds being ignored for sleep percentage.",
+			BLOCK_BLACKLIST_KEY,
+			( builder, path ) -> builder.define(
+				path,
 				List.of(),
 				o -> {
 					if( o instanceof List<?> list ) {
@@ -94,41 +128,30 @@ public class ServerConfig {
 					}
 					return false;
 				}
-			);
-		
-		CONFIG = BUILDER.build();
+			)
+		);
 	}
 	
-	private static void printConfig() {
+	@Override
+	public void handleServerStartingEvent( @NotNull ServerStartingEvent event ) {
 		
-		LOGGER.info( "{} = {}", SLEEP_PERCENT.getPath(), SLEEP_PERCENT.get() );
-		LOGGER.info( "{} = {}", SLEEP_MESSAGE.getPath(), SLEEP_MESSAGE.get() );
-		LOGGER.info( "{} = {}", WAKE_MESSAGE.getPath(), WAKE_MESSAGE.get() );
-		LOGGER.info( "{} = {}", MORNING_MESSAGE.getPath(), MORNING_MESSAGE.get() );
-		LOGGER.info( "{} = {}", DIMENSIONS.getPath(), DIMENSIONS.get() );
-		LOGGER.info( "{} = {}", DIMENSION_LIST_TYPE.getPath(), DIMENSION_LIST_TYPE.get() );
+		super.handleServerStartingEvent( event );
+		checkConfig();
 	}
 	
-	public static void printLoadedConfig() {
-		
-		LOGGER.info( "Loading \"{}\" Server Config", MOD_NAME );
-		printConfig();
-		LOGGER.info( "\"{}\" Server Config loaded", MOD_NAME );
-	}
-	
-	public static synchronized void checkAndPrintConfig() {
+	private synchronized void checkConfig() {
 		
 		boolean areDimensionCorrected = checkCorrectAndReadDimensions();
 		boolean areBlocksOfBlacklistCorrected = checkCorrectAndReadBlockBlacklist();
 		if( areDimensionCorrected || areBlocksOfBlacklistCorrected ) {
-			LOGGER.info( "\"{}\" Server Config corrected", MOD_NAME );
-			printConfig();
+			log.info( "\"{}\" Server Config corrected", abstractMod.getModName() );
+			printValues();
 		}
 	}
 	
-	private static synchronized boolean checkCorrectAndReadDimensions() {
+	private synchronized boolean checkCorrectAndReadDimensions() {
 		
-		ArrayList<String> read_dimensions = new ArrayList<>( DIMENSIONS.get() );
+		ArrayList<String> read_dimensions = new ArrayList<>( getDimensionsValue() );
 		
 		dimensions.clear();
 		for( String read_dimension : read_dimensions ) {
@@ -137,22 +160,23 @@ public class ServerConfig {
 				ResourceKey<Level> registrykey = ResourceKey.create( Registries.DIMENSION, registry_name );
 				ServerLevel serverLevel = ServerLifecycleHooks.getCurrentServer().getLevel( registrykey );
 				if( serverLevel == null ) {
-					LOGGER.warn( "Removed unknown dimension: {}", read_dimension );
+					log.warn( "Removed unknown dimension: {}", read_dimension );
 				} else {
 					dimensions.add( registrykey );
 				}
 			} else {
-				LOGGER.warn( "Removed invalid dimension registry name {}", read_dimension );
+				log.warn( "Removed invalid dimension registry name {}", read_dimension );
 			}
 		}
-		if( DIMENSIONS.get().size() != dimensions.size() ) {
-			DIMENSIONS.set( dimensionsToRegistryNameList() );
+		if( getDimensionsValue().size() != dimensions.size() ) {
+			setDimensionsValue( dimensionsToRegistryNameList() );
 			return true;
 		}
 		return false;
 	}
 	
-	private static synchronized ArrayList<String> dimensionsToRegistryNameList() {
+	@NotNull
+	private synchronized ArrayList<String> dimensionsToRegistryNameList() {
 		
 		ArrayList<String> registryNames = new ArrayList<>();
 		
@@ -162,7 +186,7 @@ public class ServerConfig {
 		return registryNames;
 	}
 	
-	public static synchronized void invertDimensions() {
+	public synchronized void invertDimensions() {
 		
 		ArrayList<String> newDimensionRegistryNames = new ArrayList<>();
 		
@@ -174,13 +198,13 @@ public class ServerConfig {
 			}
 		}
 		newDimensionRegistryNames.sort( String::compareTo );
-		DIMENSIONS.set( newDimensionRegistryNames );
-		checkAndPrintConfig();
+		setDimensionsValue( newDimensionRegistryNames );
+		checkConfig();
 	}
 	
-	private static synchronized boolean checkCorrectAndReadBlockBlacklist() {
+	private synchronized boolean checkCorrectAndReadBlockBlacklist() {
 		
-		ArrayList<String> block_blacklist = new ArrayList<>( BLOCK_BLACKLIST.get() );
+		ArrayList<String> block_blacklist = new ArrayList<>( getBlockBlacklist() );
 		
 		blockBlacklist.clear();
 		for( String block : block_blacklist ) {
@@ -189,20 +213,21 @@ public class ServerConfig {
 				if( BuiltInRegistries.BLOCK.getOptional( registry_name ).isPresent() ) {
 					blockBlacklist.add( registry_name );
 				} else {
-					LOGGER.warn( "Removed unknown block: {}", block );
+					log.warn( "Removed unknown block: {}", block );
 				}
 			} else {
-				LOGGER.warn( "Removed invalid block registry name {}", block );
+				log.warn( "Removed invalid block registry name {}", block );
 			}
 		}
-		if( BLOCK_BLACKLIST.get().size() != blockBlacklist.size() ) {
-			BLOCK_BLACKLIST.set( blockBlacklistToRegistryNameList() );
+		if( getBlockBlacklist().size() != blockBlacklist.size() ) {
+			setBlockBlacklist( blockBlacklistToRegistryNameList() );
 			return true;
 		}
 		return false;
 	}
 	
-	private static synchronized ArrayList<String> blockBlacklistToRegistryNameList() {
+	@NotNull
+	private synchronized ArrayList<String> blockBlacklistToRegistryNameList() {
 		
 		ArrayList<String> registryNames = new ArrayList<>();
 		
@@ -212,88 +237,116 @@ public class ServerConfig {
 		return registryNames;
 	}
 	
-	public static int getSleepPercent() {
+	public int getSleepPercent() {
 		
-		return SLEEP_PERCENT.get();
+		return getValue( Integer.class, SLEEP_PERCENT_KEY );
 	}
 	
-	public static void setSleepPercent( int sleep_percent ) {
+	public void setSleepPercent( int sleep_percent ) {
 		
-		SLEEP_PERCENT.set( sleep_percent );
+		setValue( Integer.class, SLEEP_PERCENT_KEY, sleep_percent );
 	}
 	
-	public static String getSleepMessage() {
+	@NotNull
+	public String getSleepMessage() {
 		
-		return SLEEP_MESSAGE.get();
+		return getValue( String.class, SLEEP_MESSAGE_KEY );
 	}
 	
-	public static void setSleepMessage( String message ) {
+	public void setSleepMessage( @NotNull String message ) {
 		
-		SLEEP_MESSAGE.set( message );
+		setValue( String.class, SLEEP_MESSAGE_KEY, message );
 	}
 	
-	public static String getWakeMessage() {
+	@NotNull
+	public String getWakeMessage() {
 		
-		return WAKE_MESSAGE.get();
+		return getValue( String.class, WAKE_MESSAGE_KEY );
 	}
 	
-	public static void setWakeMessage( String message ) {
+	public void setWakeMessage( @NotNull String message ) {
 		
-		WAKE_MESSAGE.set( message );
+		setValue( String.class, WAKE_MESSAGE_KEY, message );
 	}
 	
-	public static String getMorningMessage() {
+	@NotNull
+	public String getMorningMessage() {
 		
-		return MORNING_MESSAGE.get();
+		return getValue( String.class, MORNING_MESSAGE_KEY );
 	}
 	
-	public static void setMorningMessage( String message ) {
+	public void setMorningMessage( @NotNull String message ) {
 		
-		MORNING_MESSAGE.set( message );
+		setValue( String.class, MORNING_MESSAGE_KEY, message );
 	}
 	
-	public static boolean getAllPlayersRest() {
+	public boolean getAllPlayersRest() {
 		
-		return ALL_PLAYERS_REST.get();
+		return getValue( Boolean.class, ALL_PLAYERS_REST_KEY );
 	}
 	
-	public static void setAllPlayersRest( boolean all_player_rest ) {
+	public void setAllPlayersRest( boolean all_player_rest ) {
 		
-		ALL_PLAYERS_REST.set( all_player_rest );
+		setValue( Boolean.class, ALL_PLAYERS_REST_KEY, all_player_rest );
 	}
 	
-	public static TreeSet<ResourceKey<Level>> getDimensions() {
+	@NotNull
+	private List<String> getDimensionsValue() {
+		
+		return getListValue( String.class, DIMENSIONS_KEY );
+	}
+	
+	private void setDimensionsValue( @NotNull List<String> dimensionsValue ) {
+		
+		setValue( List.class, BLOCK_BLACKLIST_KEY, dimensionsValue );
+	}
+	
+	@NotNull
+	public TreeSet<ResourceKey<Level>> getDimensions() {
 		
 		return dimensions;
 	}
 	
-	public static synchronized void addDimension( ResourceKey<Level> dimension ) {
+	public synchronized void addDimension( @NotNull ResourceKey<Level> dimension ) {
 		
 		if( !dimensions.contains( dimension ) ) {
 			dimensions.add( dimension );
-			DIMENSIONS.set( dimensionsToRegistryNameList() );
+			setDimensionsValue( dimensionsToRegistryNameList() );
 		}
 	}
 	
-	public static synchronized void removeDimension( ResourceKey<Level> dimension ) {
+	public synchronized void removeDimension( @NotNull ResourceKey<Level> dimension ) {
 		
 		if( dimensions.contains( dimension ) ) {
 			dimensions.remove( dimension );
-			DIMENSIONS.set( dimensionsToRegistryNameList() );
+			setDimensionsValue( dimensionsToRegistryNameList() );
 		}
 	}
 	
-	public static DimensionListType getDimensionListType() {
+	@NotNull
+	public DimensionListType getDimensionListType() {
 		
-		return DIMENSION_LIST_TYPE.get();
+		return getValue( DimensionListType.class, DIMENSION_LIST_TYPE_KEY );
 	}
 	
-	public static void setDimensionListType( DimensionListType dimensionListType ) {
+	public void setDimensionListType( @NotNull DimensionListType dimensionListType ) {
 		
-		DIMENSION_LIST_TYPE.set( dimensionListType );
+		setValue( DimensionListType.class, DIMENSION_LIST_TYPE_KEY, dimensionListType );
 	}
 	
-	public static TreeSet<ResourceLocation> getIgnoredBedBlocks() {
+	@NotNull
+	private List<String> getBlockBlacklist() {
+		
+		return getListValue( String.class, BLOCK_BLACKLIST_KEY );
+	}
+	
+	private void setBlockBlacklist( @NotNull List<String> _blockBlacklist ) {
+		
+		setValue( List.class, BLOCK_BLACKLIST_KEY, _blockBlacklist );
+	}
+	
+	@NotNull
+	public TreeSet<ResourceLocation> getIgnoredBedBlocks() {
 		
 		return blockBlacklist;
 	}

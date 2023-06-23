@@ -2,6 +2,8 @@ package de.geheimagentnr1.easier_sleeping.sleeping;
 
 import de.geheimagentnr1.easier_sleeping.config.DimensionListType;
 import de.geheimagentnr1.easier_sleeping.config.ServerConfig;
+import de.geheimagentnr1.minecraft_forge_api.events.ForgeEventHandlerInterface;
+import lombok.RequiredArgsConstructor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -17,7 +19,11 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.common.WorldWorkerManager;
 import net.minecraftforge.event.ForgeEventFactory;
+import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
 import java.util.List;
@@ -25,26 +31,31 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 
-public class SleepingManager {
+@RequiredArgsConstructor
+public class SleepingManager implements ForgeEventHandlerInterface {
 	
 	
-	private static TreeMap<ResourceKey<Level>, TreeSet<ServerPlayer>> SLEEPING;
-	
+	@NotNull
 	private static final Comparator<Player> PLAYER_COMPARATOR = Comparator.comparing( Entity::getUUID );
 	
-	public static void init() {
+	@NotNull
+	private final ServerConfig serverConfig;
+	
+	private TreeMap<ResourceKey<Level>, TreeSet<ServerPlayer>> SLEEPING;
+	
+	private void init() {
 		
 		SLEEPING = new TreeMap<>( Comparator.comparing( ResourceKey::location ) );
 	}
 	
 	//package-private
-	static void updateSleepingPlayers( MinecraftServer server ) {
+	void updateSleepingPlayers( @NotNull MinecraftServer server ) {
 		
 		for( ServerLevel level : server.getAllLevels() ) {
 			ResourceKey<Level> registrykey = level.dimension();
-			boolean containsDimension = ServerConfig.getDimensions().contains( registrykey );
-			if( ServerConfig.getDimensionListType() == DimensionListType.SLEEP_ACTIVE && !containsDimension ||
-				ServerConfig.getDimensionListType() == DimensionListType.SLEEP_INACTIVE && containsDimension ) {
+			boolean containsDimension = serverConfig.getDimensions().contains( registrykey );
+			if( serverConfig.getDimensionListType() == DimensionListType.SLEEP_ACTIVE && !containsDimension ||
+				serverConfig.getDimensionListType() == DimensionListType.SLEEP_INACTIVE && containsDimension ) {
 				continue;
 			}
 			if( !SLEEPING.containsKey( registrykey ) ) {
@@ -58,7 +69,7 @@ public class SleepingManager {
 					if( player.getSleepingPos()
 						.stream()
 						.noneMatch( pos ->
-							ServerConfig.getIgnoredBedBlocks().contains(
+							serverConfig.getIgnoredBedBlocks().contains(
 								BuiltInRegistries.BLOCK.getKey( level.getBlockState( pos ).getBlock() )
 							) ) ) {
 						sleeping_players.add( player );
@@ -75,7 +86,7 @@ public class SleepingManager {
 				countSleepingPlayers( sleeping_players ),
 				non_spectator_player_count
 			);
-			if( sleeping_percent >= ServerConfig.getSleepPercent() ||
+			if( sleeping_percent >= serverConfig.getSleepPercent() ||
 				non_spectator_player_count > 0 && non_spectator_player_count == sleeping_players.size() ) {
 				if( level.getGameRules().getBoolean( GameRules.RULE_DAYLIGHT ) ) {
 					long currentDayTime = level.getDayTime();
@@ -92,7 +103,7 @@ public class SleepingManager {
 				if( level.getGameRules().getBoolean( GameRules.RULE_WEATHER_CYCLE ) ) {
 					level.setWeatherParameters( 0, 0, false, false );
 				}
-				if( ServerConfig.getAllPlayersRest() ) {
+				if( serverConfig.getAllPlayersRest() ) {
 					level_players.forEach( player -> player.resetStat( Stats.CUSTOM.get( Stats.TIME_SINCE_REST ) ) );
 				}
 				sendMorningMessage( level_players );
@@ -101,7 +112,7 @@ public class SleepingManager {
 		}
 	}
 	
-	private static int countNonSpectatorPlayers( List<? extends Player> players ) {
+	private int countNonSpectatorPlayers( @NotNull List<? extends Player> players ) {
 		
 		int count = 0;
 		for( Player player : players ) {
@@ -112,7 +123,7 @@ public class SleepingManager {
 		return count;
 	}
 	
-	private static int countSleepingPlayers( TreeSet<ServerPlayer> players ) {
+	private int countSleepingPlayers( @NotNull TreeSet<ServerPlayer> players ) {
 		
 		int count = 0;
 		for( ServerPlayer player : players ) {
@@ -123,11 +134,11 @@ public class SleepingManager {
 		return count;
 	}
 	
-	private static void sendWakeMessage(
-		List<? extends Player> players,
+	private void sendWakeMessage(
+		@NotNull List<? extends Player> players,
 		int sleep_player_count,
 		int non_spectator_player_count,
-		Player wake_player ) {
+		@NotNull Player wake_player ) {
 		
 		sendMessage(
 			players,
@@ -135,16 +146,16 @@ public class SleepingManager {
 				wake_player,
 				sleep_player_count,
 				non_spectator_player_count,
-				ServerConfig.getWakeMessage()
+				serverConfig.getWakeMessage()
 			)
 		);
 	}
 	
-	private static void sendSleepMessage(
-		List<? extends Player> players,
+	private void sendSleepMessage(
+		@NotNull List<? extends Player> players,
 		int sleep_player_count,
 		int non_spectator_player_count,
-		Player wake_player ) {
+		@NotNull Player wake_player ) {
 		
 		sendMessage(
 			players,
@@ -152,17 +163,17 @@ public class SleepingManager {
 				wake_player,
 				sleep_player_count,
 				non_spectator_player_count,
-				ServerConfig.getSleepMessage()
+				serverConfig.getSleepMessage()
 			)
 		);
 	}
 	
-	private static void sendMorningMessage( List<? extends Player> players ) {
+	private void sendMorningMessage( @NotNull List<? extends Player> players ) {
 		
-		sendMessage( players, Component.literal( ServerConfig.getMorningMessage() ) );
+		sendMessage( players, Component.literal( serverConfig.getMorningMessage() ) );
 	}
 	
-	private static void sendMessage( List<? extends Player> players, MutableComponent message ) {
+	private void sendMessage( @NotNull List<? extends Player> players, @NotNull MutableComponent message ) {
 		
 		for( Player player : players ) {
 			player.sendSystemMessage(
@@ -171,11 +182,12 @@ public class SleepingManager {
 		}
 	}
 	
-	private static MutableComponent buildWakeSleepMessage(
-		Player player,
+	@NotNull
+	private MutableComponent buildWakeSleepMessage(
+		@NotNull Player player,
 		int sleep_player_count,
 		int player_count,
-		String message ) {
+		@NotNull String message ) {
 		
 		return Component.literal( "" ).append( player.getDisplayName() )
 			.append( String.format(
@@ -187,8 +199,16 @@ public class SleepingManager {
 			) );
 	}
 	
-	private static int caculateSleepingPercent( int sleep_player_count, int non_spectator_player_count ) {
+	private int caculateSleepingPercent( int sleep_player_count, int non_spectator_player_count ) {
 		
 		return non_spectator_player_count == 0 ? 0 : sleep_player_count * 100 / non_spectator_player_count;
+	}
+	
+	@SubscribeEvent
+	@Override
+	public void handleServerStartingEvent( @NotNull ServerStartingEvent event ) {
+		
+		init();
+		WorldWorkerManager.addWorker( new SleepingWorker( this ) );
 	}
 }
