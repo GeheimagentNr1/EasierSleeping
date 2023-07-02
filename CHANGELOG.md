@@ -1,1 +1,1 @@
-- Fix that cats gifts work after sleeping
+""Ported to 1.20"" 
