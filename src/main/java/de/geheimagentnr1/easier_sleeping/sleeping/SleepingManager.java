@@ -86,8 +86,7 @@ public class SleepingManager implements ForgeEventHandlerInterface {
 				countSleepingPlayers( sleeping_players ),
 				non_spectator_player_count
 			);
-			if( sleeping_percent >= serverConfig.getSleepPercent() ||
-				non_spectator_player_count > 0 && non_spectator_player_count == sleeping_players.size() ) {
+			if( sleeping_percent >= serverConfig.getSleepPercent() ) {
 				if( level.getGameRules().getBoolean( GameRules.RULE_DAYLIGHT ) ) {
 					long currentDayTime = level.getDayTime();
 					long newDayTime = currentDayTime + 24000L - currentDayTime % 24000L;
@@ -127,7 +126,7 @@ public class SleepingManager implements ForgeEventHandlerInterface {
 		
 		int count = 0;
 		for( ServerPlayer player : players ) {
-			if( player.isSleepingLongEnough() ) {
+			if( player.isSleeping() && player.getSleepTimer() >= 80 ) {
 				count++;
 			}
 		}

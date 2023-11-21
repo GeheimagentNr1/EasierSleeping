@@ -1,1 +1,1 @@
-Ported to 1.20.2 
+- Night will only be skipped, if all players are sleeping for 80 ticks or more. Remove instead night skip
