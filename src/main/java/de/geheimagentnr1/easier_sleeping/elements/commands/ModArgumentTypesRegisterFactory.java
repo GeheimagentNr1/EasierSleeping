@@ -1,6 +1,6 @@
 package de.geheimagentnr1.easier_sleeping.elements.commands;
 
-import de.geheimagentnr1.easier_sleeping.elements.commands.sleep.DimensionListTypeArgument;
+import de.geheimagentnr1.easier_sleeping.elements.commands.sleep.dimension_list_type.DimensionListTypeArgument;
 import de.geheimagentnr1.minecraft_forge_api.registry.ElementsRegisterFactory;
 import de.geheimagentnr1.minecraft_forge_api.registry.RegistryEntry;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;

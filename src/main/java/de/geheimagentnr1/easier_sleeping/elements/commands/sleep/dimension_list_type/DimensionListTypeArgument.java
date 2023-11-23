@@ -1,4 +1,4 @@
-package de.geheimagentnr1.easier_sleeping.elements.commands.sleep;
+package de.geheimagentnr1.easier_sleeping.elements.commands.sleep.dimension_list_type;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
@@ -32,10 +32,9 @@ public class DimensionListTypeArgument implements ArgumentType<DimensionListType
 		return new DimensionListTypeArgument();
 	}
 	
-	//package-private
 	@SuppressWarnings( "SameParameterValue" )
 	@NotNull
-	static <S> DimensionListType getDimensionListType( @NotNull CommandContext<S> context, @NotNull String name ) {
+	public static <S> DimensionListType getDimensionListType( @NotNull CommandContext<S> context, @NotNull String name ) {
 		
 		return context.getArgument( name, DimensionListType.class );
 	}

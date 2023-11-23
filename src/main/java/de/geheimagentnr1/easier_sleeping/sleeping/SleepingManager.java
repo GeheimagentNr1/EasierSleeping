@@ -3,6 +3,7 @@ package de.geheimagentnr1.easier_sleeping.sleeping;
 import de.geheimagentnr1.easier_sleeping.config.DimensionListType;
 import de.geheimagentnr1.easier_sleeping.config.ServerConfig;
 import de.geheimagentnr1.minecraft_forge_api.events.ForgeEventHandlerInterface;
+import de.geheimagentnr1.minecraft_forge_api.util.MessageUtil;
 import lombok.RequiredArgsConstructor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -25,10 +26,7 @@ import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 
 
 @RequiredArgsConstructor
@@ -73,12 +71,24 @@ public class SleepingManager implements ForgeEventHandlerInterface {
 								BuiltInRegistries.BLOCK.getKey( level.getBlockState( pos ).getBlock() )
 							) ) ) {
 						sleeping_players.add( player );
-						sendSleepMessage( level_players, sleeping_players.size(), non_spectator_player_count, player );
+						sendSleepMessage(
+							level,
+							level_players,
+							sleeping_players.size(),
+							non_spectator_player_count,
+							player
+						);
 					}
 				} else {
 					if( !player.isSleeping() && sleeping_players.contains( player ) ) {
 						sleeping_players.remove( player );
-						sendWakeMessage( level_players, sleeping_players.size(), non_spectator_player_count, player );
+						sendWakeMessage(
+							level,
+							level_players,
+							sleeping_players.size(),
+							non_spectator_player_count,
+							player
+						);
 					}
 				}
 			}
@@ -105,7 +115,7 @@ public class SleepingManager implements ForgeEventHandlerInterface {
 				if( serverConfig.getAllPlayersRest() ) {
 					level_players.forEach( player -> player.resetStat( Stats.CUSTOM.get( Stats.TIME_SINCE_REST ) ) );
 				}
-				sendMorningMessage( level_players );
+				sendMorningMessage( level, level_players );
 				sleeping_players.clear();
 			}
 		}
@@ -133,7 +143,14 @@ public class SleepingManager implements ForgeEventHandlerInterface {
 		return count;
 	}
 	
+	private String getRandomMessage( @NotNull ServerLevel level, @NotNull List<String> messages ) {
+		
+		int messageIndex = Math.abs( level.getRandom().nextInt() ) % messages.size();
+		return messages.get( messageIndex );
+	}
+	
 	private void sendWakeMessage(
+		@NotNull ServerLevel level,
 		@NotNull List<? extends Player> players,
 		int sleep_player_count,
 		int non_spectator_player_count,
@@ -145,31 +162,35 @@ public class SleepingManager implements ForgeEventHandlerInterface {
 				wake_player,
 				sleep_player_count,
 				non_spectator_player_count,
-				serverConfig.getWakeMessage()
+				getRandomMessage( level, serverConfig.getWakeMessagesOrDefault() )
 			)
 		);
 	}
 	
 	private void sendSleepMessage(
+		@NotNull ServerLevel level,
 		@NotNull List<? extends Player> players,
 		int sleep_player_count,
 		int non_spectator_player_count,
-		@NotNull Player wake_player ) {
+		@NotNull Player sleep_player ) {
 		
 		sendMessage(
 			players,
 			buildWakeSleepMessage(
-				wake_player,
+				sleep_player,
 				sleep_player_count,
 				non_spectator_player_count,
-				serverConfig.getSleepMessage()
+				getRandomMessage( level, serverConfig.getSleepMessagesOrDefault() )
 			)
 		);
 	}
 	
-	private void sendMorningMessage( @NotNull List<? extends Player> players ) {
+	private void sendMorningMessage( @NotNull ServerLevel level, @NotNull List<? extends Player> players ) {
 		
-		sendMessage( players, Component.literal( serverConfig.getMorningMessage() ) );
+		sendMessage(
+			players,
+			Component.literal( getRandomMessage( level, serverConfig.getMorningMessagesOrDefault() ) )
+		);
 	}
 	
 	private void sendMessage( @NotNull List<? extends Player> players, @NotNull MutableComponent message ) {
@@ -188,14 +209,18 @@ public class SleepingManager implements ForgeEventHandlerInterface {
 		int player_count,
 		@NotNull String message ) {
 		
-		return Component.literal( "" ).append( player.getDisplayName() )
-			.append( String.format(
-				" %s - %d/%d (%d%%)",
+		return Component.literal( String.format(
+			" %s - %d/%d (%d%%)",
+			MessageUtil.replaceParameters(
 				message,
-				sleep_player_count,
-				player_count,
-				caculateSleepingPercent( sleep_player_count, player_count )
-			) );
+				Map.of(
+					"player", player.getDisplayName().getString()
+				)
+			),
+			sleep_player_count,
+			player_count,
+			caculateSleepingPercent( sleep_player_count, player_count )
+		) );
 	}
 	
 	private int caculateSleepingPercent( int sleep_player_count, int non_spectator_player_count ) {

@@ -1,4 +1,4 @@
-package de.geheimagentnr1.easier_sleeping.elements.commands.sleep;
+package de.geheimagentnr1.easier_sleeping.elements.commands.sleep.dimension_list_type;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;

@@ -8,6 +8,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import de.geheimagentnr1.easier_sleeping.config.DimensionListType;
 import de.geheimagentnr1.easier_sleeping.config.ServerConfig;
+import de.geheimagentnr1.easier_sleeping.elements.commands.sleep.dimension_list_type.DimensionListTypeArgument;
 import de.geheimagentnr1.minecraft_forge_api.elements.commands.CommandInterface;
 import lombok.RequiredArgsConstructor;
 import net.minecraft.commands.CommandSourceStack;
@@ -18,6 +19,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 
 @SuppressWarnings( "SameReturnValue" )
@@ -38,19 +44,31 @@ public class SleepCommand implements CommandInterface {
 			.executes( this::showSleepPercent )
 			.then( Commands.argument( "sleep_percent", IntegerArgumentType.integer( 0, 100 ) )
 				.executes( this::changeSleepPercent ) ) );
-		sleep.then( Commands.literal( "message" )
+		sleep.then( Commands.literal( "messages" )
 			.then( Commands.literal( "wake" )
 				.executes( this::showWakeMessage )
-				.then( Commands.argument( "message", MessageArgument.message() )
-					.executes( this::changeWakeMessage ) ) )
+				.then( Commands.literal( "add" )
+					.then( Commands.argument( "message", MessageArgument.message() )
+						.executes( this::addWakeMessage ) ) )
+				.then( Commands.literal( "remove" )
+					.then( Commands.argument( "message", MessageArgument.message() )
+						.executes( this::removeWakeMessage ) ) ) )
 			.then( Commands.literal( "sleep" )
 				.executes( this::showSleepMessage )
-				.then( Commands.argument( "message", MessageArgument.message() )
-					.executes( this::changeSleepMessage ) ) )
+				.then( Commands.literal( "add" )
+					.then( Commands.argument( "message", MessageArgument.message() )
+						.executes( this::addSleepMessage ) ) )
+				.then( Commands.literal( "remove" )
+					.then( Commands.argument( "message", MessageArgument.message() )
+						.executes( this::removeSleepMessage ) ) ) )
 			.then( Commands.literal( "morning" )
 				.executes( this::showMorningMessage )
-				.then( Commands.argument( "message", MessageArgument.message() )
-					.executes( this::changeMorningMessage ) ) ) );
+				.then( Commands.literal( "add" )
+					.then( Commands.argument( "message", MessageArgument.message() )
+						.executes( this::addMorningMessage ) ) )
+				.then( Commands.literal( "remove" )
+					.then( Commands.argument( "message", MessageArgument.message() )
+						.executes( this::removeMorningMessage ) ) ) ) );
 		sleep.then( Commands.literal( "all_players_rest" )
 			.executes( this::showAllPlayersRest )
 			.then( Commands.argument( "all_players_rest", BoolArgumentType.bool() )
@@ -97,81 +115,149 @@ public class SleepCommand implements CommandInterface {
 		return Command.SINGLE_SUCCESS;
 	}
 	
-	private int showWakeMessage( @NotNull CommandContext<CommandSourceStack> context ) {
+	private void sendMessages(
+		@NotNull CommandContext<CommandSourceStack> context,
+		@NotNull String messagePrefix,
+		@NotNull Supplier<List<String>> configMessagesGetter ) {
 		
 		context.getSource().sendSuccess(
 			() -> Component.literal( String.format(
-				"Wake Message: %s",
-				serverConfig.getWakeMessage()
+				"%s: %s",
+				messagePrefix,
+				String.join( ", ", configMessagesGetter.get() )
 			) ),
-			false
+			true
+		);
+	}
+	
+	private int showMessages(
+		@NotNull CommandContext<CommandSourceStack> context,
+		@NotNull String resultMessagePrefix,
+		@NotNull Supplier<List<String>> configMessagesGetter ) {
+		
+		sendMessages(
+			context,
+			String.format(
+				"%s Messages",
+				resultMessagePrefix
+			),
+			configMessagesGetter
 		);
 		return Command.SINGLE_SUCCESS;
 	}
 	
-	private int changeWakeMessage( @NotNull CommandContext<CommandSourceStack> context ) throws CommandSyntaxException {
+	private int showWakeMessage( @NotNull CommandContext<CommandSourceStack> context ) {
 		
-		serverConfig.setWakeMessage( MessageArgument.getMessage( context, "message" ).getString() );
-		context.getSource().sendSuccess(
-			() -> Component.literal( String.format(
-				"Wake Message is now: %s",
-				serverConfig.getWakeMessage()
-			) ),
-			true
+		return showMessages( context, "Wake", serverConfig::getWakeMessages );
+	}
+	
+	private int changeMessages(
+		@NotNull CommandContext<CommandSourceStack> context,
+		@NotNull MessageActionType messageActionType,
+		@NotNull Consumer<List<String>> configMessagesSetter,
+		@NotNull Supplier<List<String>> configMessagesGetter,
+		@NotNull String resultMessagePrefix )
+		throws CommandSyntaxException {
+		
+		String message = MessageArgument.getMessage( context, "message" ).getString();
+		List<String> messages = new ArrayList<>( configMessagesGetter.get() );
+		
+		if( messageActionType == MessageActionType.ADD ) {
+			messages.add( message );
+		} else {
+			messages.remove( message );
+		}
+		configMessagesSetter.accept( messages );
+		sendMessages(
+			context,
+			String.format(
+				"%s Messages are now",
+				resultMessagePrefix
+			),
+			configMessagesGetter
 		);
 		return Command.SINGLE_SUCCESS;
+	}
+	
+	private int changeWakeMessage(
+		@NotNull CommandContext<CommandSourceStack> context,
+		@NotNull MessageActionType messageActionType ) throws CommandSyntaxException {
+		
+		return changeMessages(
+			context,
+			messageActionType,
+			serverConfig::setWakeMessages,
+			serverConfig::getWakeMessages,
+			"Wake"
+		);
+	}
+	
+	private int addWakeMessage( @NotNull CommandContext<CommandSourceStack> context ) throws CommandSyntaxException {
+		
+		return changeWakeMessage( context, MessageActionType.ADD );
+	}
+	
+	private int removeWakeMessage( @NotNull CommandContext<CommandSourceStack> context ) throws CommandSyntaxException {
+		
+		return changeWakeMessage( context, MessageActionType.REMOVE );
 	}
 	
 	private int showSleepMessage( @NotNull CommandContext<CommandSourceStack> context ) {
 		
-		context.getSource().sendSuccess(
-			() -> Component.literal( String.format(
-				"Sleep Message: %s",
-				serverConfig.getSleepMessage()
-			) ),
-			false
-		);
-		return Command.SINGLE_SUCCESS;
+		return showMessages( context, "Sleep", serverConfig::getSleepMessages );
 	}
 	
-	private int changeSleepMessage( @NotNull CommandContext<CommandSourceStack> context )
+	private int changeSleepMessage(
+		@NotNull CommandContext<CommandSourceStack> context,
+		@NotNull MessageActionType messageActionType ) throws CommandSyntaxException {
+		
+		return changeMessages(
+			context,
+			messageActionType,
+			serverConfig::setSleepMessages,
+			serverConfig::getSleepMessages,
+			"Sleep"
+		);
+	}
+	
+	private int addSleepMessage( @NotNull CommandContext<CommandSourceStack> context ) throws CommandSyntaxException {
+		
+		return changeSleepMessage( context, MessageActionType.ADD );
+	}
+	
+	private int removeSleepMessage( @NotNull CommandContext<CommandSourceStack> context )
 		throws CommandSyntaxException {
 		
-		serverConfig.setSleepMessage( MessageArgument.getMessage( context, "message" ).getString() );
-		context.getSource().sendSuccess(
-			() -> Component.literal( String.format(
-				"Sleep Message is now: %s",
-				serverConfig.getSleepMessage()
-			) ),
-			true
-		);
-		return Command.SINGLE_SUCCESS;
+		return changeSleepMessage( context, MessageActionType.REMOVE );
 	}
 	
 	private int showMorningMessage( @NotNull CommandContext<CommandSourceStack> context ) {
 		
-		context.getSource().sendSuccess(
-			() -> Component.literal( String.format(
-				"Morning Message: %s",
-				serverConfig.getMorningMessage()
-			) ),
-			false
-		);
-		return Command.SINGLE_SUCCESS;
+		return showMessages( context, "Morning", serverConfig::getMorningMessages );
 	}
 	
-	private int changeMorningMessage( @NotNull CommandContext<CommandSourceStack> context )
+	private int changeMorningMessage(
+		@NotNull CommandContext<CommandSourceStack> context,
+		@NotNull MessageActionType messageActionType ) throws CommandSyntaxException {
+		
+		return changeMessages(
+			context,
+			messageActionType,
+			serverConfig::setMorningMessages,
+			serverConfig::getMorningMessages,
+			"Morning"
+		);
+	}
+	
+	private int addMorningMessage( @NotNull CommandContext<CommandSourceStack> context ) throws CommandSyntaxException {
+		
+		return changeMorningMessage( context, MessageActionType.ADD );
+	}
+	
+	private int removeMorningMessage( @NotNull CommandContext<CommandSourceStack> context )
 		throws CommandSyntaxException {
 		
-		serverConfig.setMorningMessage( MessageArgument.getMessage( context, "message" ).getString() );
-		context.getSource().sendSuccess(
-			() -> Component.literal( String.format(
-				"Morning Message is now: %s",
-				serverConfig.getMorningMessage()
-			) ),
-			true
-		);
-		return Command.SINGLE_SUCCESS;
+		return changeMorningMessage( context, MessageActionType.REMOVE );
 	}
 	
 	private int showAllPlayersRest( @NotNull CommandContext<CommandSourceStack> context ) {

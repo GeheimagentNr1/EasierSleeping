@@ -15,6 +15,7 @@ import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Log4j2
@@ -25,13 +26,13 @@ public class ServerConfig extends AbstractConfig {
 	private static final String SLEEP_PERCENT_KEY = "sleep_percent";
 	
 	@NotNull
-	private static final String SLEEP_MESSAGE_KEY = "sleep_message";
+	private static final String SLEEP_MESSAGES_KEY = "sleep_messages";
 	
 	@NotNull
-	private static final String WAKE_MESSAGE_KEY = "wake_message";
+	private static final String WAKE_MESSAGES_KEY = "wake_messages";
 	
 	@NotNull
-	private static final String MORNING_MESSAGE_KEY = "morning_message";
+	private static final String MORNING_MESSAGES_KEY = "morning_messages";
 	
 	@NotNull
 	private static final String ALL_PLAYERS_REST_KEY = "all_players_rest";
@@ -78,9 +79,39 @@ public class ServerConfig extends AbstractConfig {
 			SLEEP_PERCENT_KEY,
 			( builder, path ) -> builder.defineInRange( path, 50, 0, 100 )
 		);
-		registerConfigValue( "Message shown, if a player goes to bed", SLEEP_MESSAGE_KEY, "is now in bed." );
-		registerConfigValue( "Message shown, if a player leaves his bed", WAKE_MESSAGE_KEY, "stood up." );
-		registerConfigValue( "Message shown, if the night was skipped", MORNING_MESSAGE_KEY, "Good Morning" );
+		registerConfigValue(
+			List.of(
+				"List of messages, from which one will be shown, when a player goes to bed",
+				"(Available parameters: %player% = Player name)"
+			),
+			SLEEP_MESSAGES_KEY,
+			( builder, path ) -> builder.define(
+				path,
+				defaultSleepingMessages(),
+				defaultListPredication( String.class )
+			)
+		);
+		registerConfigValue(
+			List.of(
+				"List of messages, from which one will be shown, when a player leaves his bed",
+				"(Available parameters: %player% = Player name)"
+			),
+			WAKE_MESSAGES_KEY,
+			( builder, path ) -> builder.define(
+				path,
+				defaultWakeMessages(),
+				defaultListPredication( String.class )
+			)
+		);
+		registerConfigValue(
+			"List of messages, from which one will be shown, when the night was skipped",
+			MORNING_MESSAGES_KEY,
+			( builder, path ) -> builder.define(
+				path,
+				defaultMorningMessages(),
+				defaultListPredication( String.class )
+			)
+		);
 		registerConfigValue(
 			"If true, the time since last rest is reset for all players, if enough other players are " +
 				"successfully sleeping. So not every player has to sleep to prevent phantom spawning for him.",
@@ -98,12 +129,7 @@ public class ServerConfig extends AbstractConfig {
 			( builder, path ) -> builder.define(
 				path,
 				Collections.singletonList( Objects.requireNonNull( Level.OVERWORLD.location() ).toString() ),
-				o -> {
-					if( o instanceof List<?> list ) {
-						return list.isEmpty() || list.get( 0 ) instanceof String;
-					}
-					return false;
-				}
+				defaultListPredication( String.class )
 			)
 		);
 		registerConfigValue(
@@ -122,14 +148,24 @@ public class ServerConfig extends AbstractConfig {
 			( builder, path ) -> builder.define(
 				path,
 				List.of(),
-				o -> {
-					if( o instanceof List<?> list ) {
-						return list.isEmpty() || list.get( 0 ) instanceof String;
-					}
-					return false;
-				}
+				defaultListPredication( String.class )
 			)
 		);
+	}
+	
+	private List<String> defaultSleepingMessages() {
+		
+		return List.of( "%player% is now in bed." );
+	}
+	
+	private List<String> defaultWakeMessages() {
+		
+		return List.of( "%player% stood up." );
+	}
+	
+	private List<String> defaultMorningMessages() {
+		
+		return List.of( "Good Morning" );
 	}
 	
 	@Override
@@ -145,7 +181,6 @@ public class ServerConfig extends AbstractConfig {
 		boolean areBlocksOfBlacklistCorrected = checkCorrectAndReadBlockBlacklist();
 		if( areDimensionCorrected || areBlocksOfBlacklistCorrected ) {
 			log.info( "\"{}\" Server Config corrected", abstractMod.getModName() );
-			printValues();
 		}
 	}
 	
@@ -248,36 +283,71 @@ public class ServerConfig extends AbstractConfig {
 	}
 	
 	@NotNull
-	public String getSleepMessage() {
+	public List<String> getSleepMessages() {
 		
-		return getValue( String.class, SLEEP_MESSAGE_KEY );
-	}
-	
-	public void setSleepMessage( @NotNull String message ) {
-		
-		setValue( String.class, SLEEP_MESSAGE_KEY, message );
+		return getListValue( String.class, SLEEP_MESSAGES_KEY );
 	}
 	
 	@NotNull
-	public String getWakeMessage() {
+	public List<String> getSleepMessagesOrDefault() {
 		
-		return getValue( String.class, WAKE_MESSAGE_KEY );
+		List<String> messages = getListValue( String.class, SLEEP_MESSAGES_KEY );
+		if( messages.isEmpty() ) {
+			return defaultSleepingMessages();
+		}
+		return messages;
 	}
 	
-	public void setWakeMessage( @NotNull String message ) {
+	private List<String> distinctMessages( List<String> messages ) {
 		
-		setValue( String.class, WAKE_MESSAGE_KEY, message );
+		return messages.stream().distinct().collect( Collectors.toList() );
+	}
+	
+	public void setSleepMessages( @NotNull List<String> messages ) {
+		
+		setListValue( String.class, SLEEP_MESSAGES_KEY, distinctMessages( messages ) );
 	}
 	
 	@NotNull
-	public String getMorningMessage() {
+	public List<String> getWakeMessages() {
 		
-		return getValue( String.class, MORNING_MESSAGE_KEY );
+		return getListValue( String.class, WAKE_MESSAGES_KEY );
 	}
 	
-	public void setMorningMessage( @NotNull String message ) {
+	@NotNull
+	public List<String> getWakeMessagesOrDefault() {
 		
-		setValue( String.class, MORNING_MESSAGE_KEY, message );
+		List<String> messages = getListValue( String.class, WAKE_MESSAGES_KEY );
+		if( messages.isEmpty() ) {
+			return defaultWakeMessages();
+		}
+		return messages;
+	}
+	
+	public void setWakeMessages( @NotNull List<String> messages ) {
+		
+		setListValue( String.class, WAKE_MESSAGES_KEY, distinctMessages( messages ) );
+	}
+	
+	@NotNull
+	public List<String> getMorningMessages() {
+		
+		return getListValue( String.class, MORNING_MESSAGES_KEY );
+	}
+	
+	@NotNull
+	public List<String> getMorningMessagesOrDefault() {
+		
+		List<String> messages = getListValue( String.class, MORNING_MESSAGES_KEY );
+		if( messages.isEmpty() ) {
+			return defaultMorningMessages();
+		}
+		return messages;
+	}
+	
+	public void setMorningMessages( @NotNull List<String> messages ) {
+		
+		setListValue( String.class, MORNING_MESSAGES_KEY, distinctMessages( messages ) );
 	}
 	
 	public boolean getAllPlayersRest() {
