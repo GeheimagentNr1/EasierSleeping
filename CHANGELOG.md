@@ -1,4 +1,1 @@
-- IMPORTANT: The config structure has been changed and is not compatible with older versions.
-- Night will only be skipped, if all players are sleeping for 80 ticks or more. Remove instead night skip
-- For sleep, wake and morning there can now be multiple message, from which one will be randomly shown.
-- For sleep and wake messages, there is now a %player% parameter, so the place, where the player name shall be shown, is now configurable.
+Ported to 1.20.4 
