@@ -9,7 +9,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import de.geheimagentnr1.easier_sleeping.config.DimensionListType;
 import de.geheimagentnr1.easier_sleeping.config.ServerConfig;
 import de.geheimagentnr1.easier_sleeping.elements.commands.sleep.dimension_list_type.DimensionListTypeArgument;
-import de.geheimagentnr1.minecraft_forge_api.elements.commands.CommandInterface;
 import lombok.RequiredArgsConstructor;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -28,14 +27,13 @@ import java.util.function.Supplier;
 
 @SuppressWarnings( "SameReturnValue" )
 @RequiredArgsConstructor
-public class SleepCommand implements CommandInterface {
+public class SleepCommand {
 	
 	
 	@NotNull
 	private final ServerConfig serverConfig;
 	
 	@NotNull
-	@Override
 	public LiteralArgumentBuilder<CommandSourceStack> build() {
 		
 		LiteralArgumentBuilder<CommandSourceStack> sleep = Commands.literal( "sleep" )

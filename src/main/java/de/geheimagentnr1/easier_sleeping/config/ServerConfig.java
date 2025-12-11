@@ -1,7 +1,7 @@
 package de.geheimagentnr1.easier_sleeping.config;
 
-import de.geheimagentnr1.minecraft_forge_api.AbstractMod;
-import de.geheimagentnr1.minecraft_forge_api.config.AbstractConfig;
+import de.geheimagentnr1.easier_sleeping.EasierSleeping;
+import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -9,9 +9,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.event.server.ServerStartingEvent;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.neoforge.common.ModConfigSpec;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -19,32 +18,36 @@ import java.util.stream.Collectors;
 
 
 @Log4j2
-public class ServerConfig extends AbstractConfig {
+public class ServerConfig {
 	
+	
+	@Getter
+	@NotNull
+	private final ModConfigSpec configSpec;
 	
 	@NotNull
-	private static final String SLEEP_PERCENT_KEY = "sleep_percent";
+	private final ModConfigSpec.IntValue sleepPercent;
 	
 	@NotNull
-	private static final String SLEEP_MESSAGES_KEY = "sleep_messages";
+	private final ModConfigSpec.ConfigValue<List<? extends String>> sleepMessages;
 	
 	@NotNull
-	private static final String WAKE_MESSAGES_KEY = "wake_messages";
+	private final ModConfigSpec.ConfigValue<List<? extends String>> wakeMessages;
 	
 	@NotNull
-	private static final String MORNING_MESSAGES_KEY = "morning_messages";
+	private final ModConfigSpec.ConfigValue<List<? extends String>> morningMessages;
 	
 	@NotNull
-	private static final String ALL_PLAYERS_REST_KEY = "all_players_rest";
+	private final ModConfigSpec.BooleanValue allPlayersRest;
 	
 	@NotNull
-	private static final String DIMENSIONS_KEY = "dimensions";
+	private final ModConfigSpec.ConfigValue<List<? extends String>> dimensionsConfig;
 	
 	@NotNull
-	private static final String DIMENSION_LIST_TYPE_KEY = "dimension_list_type";
+	private final ModConfigSpec.EnumValue<DimensionListType> dimensionListType;
 	
 	@NotNull
-	private static final String BLOCK_BLACKLIST_KEY = "block_blacklist";
+	private final ModConfigSpec.ConfigValue<List<? extends String>> blockBlacklistConfig;
 	
 	@NotNull
 	private final TreeSet<ResourceKey<Level>> dimensions =
@@ -53,104 +56,79 @@ public class ServerConfig extends AbstractConfig {
 	@NotNull
 	private final TreeSet<ResourceLocation> blockBlacklist = new TreeSet<>();
 	
-	public ServerConfig( @NotNull AbstractMod _abstractMod ) {
+	public ServerConfig() {
 		
-		super( _abstractMod );
-	}
-	
-	@NotNull
-	@Override
-	public ModConfig.Type type() {
+		ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
 		
-		return ModConfig.Type.SERVER;
-	}
-	
-	@Override
-	public boolean isEarlyLoad() {
+		builder.comment( "Percentage of players required to skip the night." );
+		sleepPercent = builder.defineInRange( "sleep_percent", 50, 0, 100 );
 		
-		return false;
-	}
-	
-	@Override
-	protected void registerConfigValues() {
+		builder.comment(
+			"List of messages, from which one will be shown, when a player goes to bed",
+			"(Available parameters: %player% = Player name)"
+		);
+		sleepMessages = builder.defineListAllowEmpty(
+			List.of( "sleep_messages" ),
+			() -> defaultSleepingMessages(),
+			() -> "",
+			obj -> obj instanceof String
+		);
 		
-		registerConfigValue(
-			"Percentage of players required to skip the night.",
-			SLEEP_PERCENT_KEY,
-			( builder, path ) -> builder.defineInRange( path, 50, 0, 100 )
+		builder.comment(
+			"List of messages, from which one will be shown, when a player leaves his bed",
+			"(Available parameters: %player% = Player name)"
 		);
-		registerConfigValue(
-			List.of(
-				"List of messages, from which one will be shown, when a player goes to bed",
-				"(Available parameters: %player% = Player name)"
-			),
-			SLEEP_MESSAGES_KEY,
-			( builder, path ) -> builder.define(
-				path,
-				defaultSleepingMessages(),
-				defaultListPredication( String.class )
-			)
+		wakeMessages = builder.defineListAllowEmpty(
+			List.of( "wake_messages" ),
+			() -> defaultWakeMessages(),
+			() -> "",
+			obj -> obj instanceof String
 		);
-		registerConfigValue(
-			List.of(
-				"List of messages, from which one will be shown, when a player leaves his bed",
-				"(Available parameters: %player% = Player name)"
-			),
-			WAKE_MESSAGES_KEY,
-			( builder, path ) -> builder.define(
-				path,
-				defaultWakeMessages(),
-				defaultListPredication( String.class )
-			)
+		
+		builder.comment( "List of messages, from which one will be shown, when the night was skipped" );
+		morningMessages = builder.defineListAllowEmpty(
+			List.of( "morning_messages" ),
+			() -> defaultMorningMessages(),
+			() -> "",
+			obj -> obj instanceof String
 		);
-		registerConfigValue(
-			"List of messages, from which one will be shown, when the night was skipped",
-			MORNING_MESSAGES_KEY,
-			( builder, path ) -> builder.define(
-				path,
-				defaultMorningMessages(),
-				defaultListPredication( String.class )
-			)
-		);
-		registerConfigValue(
+		
+		builder.comment(
 			"If true, the time since last rest is reset for all players, if enough other players are " +
-				"successfully sleeping. So not every player has to sleep to prevent phantom spawning for him.",
-			ALL_PLAYERS_REST_KEY,
-			false
+				"successfully sleeping. So not every player has to sleep to prevent phantom spawning for him."
 		);
-		registerConfigValue(
-			List.of(
-				"If dimension_list_type is set to SLEEP_ACTIVE, the list is the list of dimensions in which the " +
-					"sleep voting is active.",
-				"If dimension_list_type is set to SLEEP_INACTIVE, the list is the list of dimensions in which the " +
-					"sleep voting is inactive."
-			),
-			DIMENSIONS_KEY,
-			( builder, path ) -> builder.define(
-				path,
-				Collections.singletonList( Objects.requireNonNull( Level.OVERWORLD.location() ).toString() ),
-				defaultListPredication( String.class )
-			)
+		allPlayersRest = builder.define( "all_players_rest", false );
+		
+		builder.comment(
+			"If dimension_list_type is set to SLEEP_ACTIVE, the list is the list of dimensions in which the " +
+				"sleep voting is active.",
+			"If dimension_list_type is set to SLEEP_INACTIVE, the list is the list of dimensions in which the " +
+				"sleep voting is inactive."
 		);
-		registerConfigValue(
-			List.of(
-				"If dimension_list_type is set to SLEEP_ACTIVE, the dimension list is the list of dimensions in " +
-					"which the sleep voting is active.",
-				"If dimension_list_type is set to SLEEP_INACTIVE, the dimension list is the list of dimensions in " +
-					"which the sleep voting is inactive."
-			),
-			DIMENSION_LIST_TYPE_KEY,
-			( builder, path ) -> builder.defineEnum( path, DimensionListType.SLEEP_ACTIVE )
+		dimensionsConfig = builder.defineListAllowEmpty(
+			List.of( "dimensions" ),
+			() -> Collections.singletonList( Objects.requireNonNull( Level.OVERWORLD.location() ).toString() ),
+			() -> "",
+			obj -> obj instanceof String
 		);
-		registerConfigValue(
-			"Block names of beds being ignored for sleep percentage.",
-			BLOCK_BLACKLIST_KEY,
-			( builder, path ) -> builder.define(
-				path,
-				List.of(),
-				defaultListPredication( String.class )
-			)
+		
+		builder.comment(
+			"If dimension_list_type is set to SLEEP_ACTIVE, the dimension list is the list of dimensions in " +
+				"which the sleep voting is active.",
+			"If dimension_list_type is set to SLEEP_INACTIVE, the dimension list is the list of dimensions in " +
+				"which the sleep voting is inactive."
 		);
+		dimensionListType = builder.defineEnum( "dimension_list_type", DimensionListType.SLEEP_ACTIVE );
+		
+		builder.comment( "Block names of beds being ignored for sleep percentage." );
+		blockBlacklistConfig = builder.defineListAllowEmpty(
+			List.of( "block_blacklist" ),
+			() -> List.of(),
+			() -> "",
+			obj -> obj instanceof String
+		);
+		
+		configSpec = builder.build();
 	}
 	
 	private List<String> defaultSleepingMessages() {
@@ -168,10 +146,8 @@ public class ServerConfig extends AbstractConfig {
 		return List.of( "Good Morning" );
 	}
 	
-	@Override
-	public void handleServerStartingEvent( @NotNull ServerStartingEvent event ) {
+	public void onServerStarting() {
 		
-		super.handleServerStartingEvent( event );
 		checkConfig();
 	}
 	
@@ -180,7 +156,7 @@ public class ServerConfig extends AbstractConfig {
 		boolean areDimensionCorrected = checkCorrectAndReadDimensions();
 		boolean areBlocksOfBlacklistCorrected = checkCorrectAndReadBlockBlacklist();
 		if( areDimensionCorrected || areBlocksOfBlacklistCorrected ) {
-			log.info( "\"{}\" Server Config corrected", abstractMod.getModName() );
+			log.info( "\"{}\" Server Config corrected", EasierSleeping.MODID );
 		}
 	}
 	
@@ -274,24 +250,25 @@ public class ServerConfig extends AbstractConfig {
 	
 	public int getSleepPercent() {
 		
-		return getValue( Integer.class, SLEEP_PERCENT_KEY );
+		return sleepPercent.get();
 	}
 	
 	public void setSleepPercent( int sleep_percent ) {
 		
-		setValue( Integer.class, SLEEP_PERCENT_KEY, sleep_percent );
+		sleepPercent.set( sleep_percent );
 	}
 	
 	@NotNull
+	@SuppressWarnings( "unchecked" )
 	public List<String> getSleepMessages() {
 		
-		return getListValue( String.class, SLEEP_MESSAGES_KEY );
+		return new ArrayList<>( (List<String>) (List<?>) sleepMessages.get() );
 	}
 	
 	@NotNull
 	public List<String> getSleepMessagesOrDefault() {
 		
-		List<String> messages = getListValue( String.class, SLEEP_MESSAGES_KEY );
+		List<String> messages = getSleepMessages();
 		if( messages.isEmpty() ) {
 			return defaultSleepingMessages();
 		}
@@ -305,19 +282,20 @@ public class ServerConfig extends AbstractConfig {
 	
 	public void setSleepMessages( @NotNull List<String> messages ) {
 		
-		setListValue( String.class, SLEEP_MESSAGES_KEY, distinctMessages( messages ) );
+		sleepMessages.set( distinctMessages( messages ) );
 	}
 	
 	@NotNull
+	@SuppressWarnings( "unchecked" )
 	public List<String> getWakeMessages() {
 		
-		return getListValue( String.class, WAKE_MESSAGES_KEY );
+		return new ArrayList<>( (List<String>) (List<?>) wakeMessages.get() );
 	}
 	
 	@NotNull
 	public List<String> getWakeMessagesOrDefault() {
 		
-		List<String> messages = getListValue( String.class, WAKE_MESSAGES_KEY );
+		List<String> messages = getWakeMessages();
 		if( messages.isEmpty() ) {
 			return defaultWakeMessages();
 		}
@@ -326,19 +304,20 @@ public class ServerConfig extends AbstractConfig {
 	
 	public void setWakeMessages( @NotNull List<String> messages ) {
 		
-		setListValue( String.class, WAKE_MESSAGES_KEY, distinctMessages( messages ) );
+		wakeMessages.set( distinctMessages( messages ) );
 	}
 	
 	@NotNull
+	@SuppressWarnings( "unchecked" )
 	public List<String> getMorningMessages() {
 		
-		return getListValue( String.class, MORNING_MESSAGES_KEY );
+		return new ArrayList<>( (List<String>) (List<?>) morningMessages.get() );
 	}
 	
 	@NotNull
 	public List<String> getMorningMessagesOrDefault() {
 		
-		List<String> messages = getListValue( String.class, MORNING_MESSAGES_KEY );
+		List<String> messages = getMorningMessages();
 		if( messages.isEmpty() ) {
 			return defaultMorningMessages();
 		}
@@ -347,28 +326,29 @@ public class ServerConfig extends AbstractConfig {
 	
 	public void setMorningMessages( @NotNull List<String> messages ) {
 		
-		setListValue( String.class, MORNING_MESSAGES_KEY, distinctMessages( messages ) );
+		morningMessages.set( distinctMessages( messages ) );
 	}
 	
 	public boolean getAllPlayersRest() {
 		
-		return getValue( Boolean.class, ALL_PLAYERS_REST_KEY );
+		return allPlayersRest.get();
 	}
 	
 	public void setAllPlayersRest( boolean all_player_rest ) {
 		
-		setValue( Boolean.class, ALL_PLAYERS_REST_KEY, all_player_rest );
+		allPlayersRest.set( all_player_rest );
 	}
 	
 	@NotNull
+	@SuppressWarnings( "unchecked" )
 	private List<String> getDimensionsValue() {
 		
-		return getListValue( String.class, DIMENSIONS_KEY );
+		return new ArrayList<>( (List<String>) (List<?>) dimensionsConfig.get() );
 	}
 	
 	private void setDimensionsValue( @NotNull List<String> dimensionsValue ) {
 		
-		setValue( List.class, BLOCK_BLACKLIST_KEY, dimensionsValue );
+		dimensionsConfig.set( dimensionsValue );
 	}
 	
 	@NotNull
@@ -396,23 +376,24 @@ public class ServerConfig extends AbstractConfig {
 	@NotNull
 	public DimensionListType getDimensionListType() {
 		
-		return getValue( DimensionListType.class, DIMENSION_LIST_TYPE_KEY );
+		return dimensionListType.get();
 	}
 	
-	public void setDimensionListType( @NotNull DimensionListType dimensionListType ) {
+	public void setDimensionListType( @NotNull DimensionListType _dimensionListType ) {
 		
-		setValue( DimensionListType.class, DIMENSION_LIST_TYPE_KEY, dimensionListType );
+		dimensionListType.set( _dimensionListType );
 	}
 	
 	@NotNull
+	@SuppressWarnings( "unchecked" )
 	private List<String> getBlockBlacklist() {
 		
-		return getListValue( String.class, BLOCK_BLACKLIST_KEY );
+		return new ArrayList<>( (List<String>) (List<?>) blockBlacklistConfig.get() );
 	}
 	
 	private void setBlockBlacklist( @NotNull List<String> _blockBlacklist ) {
 		
-		setValue( List.class, BLOCK_BLACKLIST_KEY, _blockBlacklist );
+		blockBlacklistConfig.set( _blockBlacklist );
 	}
 	
 	@NotNull

@@ -2,8 +2,6 @@ package de.geheimagentnr1.easier_sleeping.sleeping;
 
 import de.geheimagentnr1.easier_sleeping.config.DimensionListType;
 import de.geheimagentnr1.easier_sleeping.config.ServerConfig;
-import de.geheimagentnr1.minecraft_forge_api.events.ForgeEventHandlerInterface;
-import de.geheimagentnr1.minecraft_forge_api.util.MessageUtil;
 import lombok.RequiredArgsConstructor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -20,17 +18,18 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.WorldWorkerManager;
-import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.event.server.ServerStartingEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.EventHooks;
+import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
 
 @RequiredArgsConstructor
-public class SleepingManager implements ForgeEventHandlerInterface {
+public class SleepingManager {
 	
 	
 	@NotNull
@@ -100,7 +99,7 @@ public class SleepingManager implements ForgeEventHandlerInterface {
 				if( level.getGameRules().getBoolean( GameRules.RULE_DAYLIGHT ) ) {
 					long currentDayTime = level.getDayTime();
 					long newDayTime = currentDayTime + 24000L - currentDayTime % 24000L;
-					newDayTime = ForgeEventFactory.onSleepFinished( level, newDayTime, currentDayTime );
+					newDayTime = EventHooks.onSleepFinished( level, newDayTime, currentDayTime );
 					level.setDayTime( newDayTime );
 				}
 				sleeping_players.forEach( player -> {
@@ -211,7 +210,7 @@ public class SleepingManager implements ForgeEventHandlerInterface {
 		
 		return Component.literal( String.format(
 			" %s - %d/%d (%d%%)",
-			MessageUtil.replaceParameters(
+			replaceParameters(
 				message,
 				Map.of(
 					"player", player.getDisplayName().getString()
@@ -223,16 +222,33 @@ public class SleepingManager implements ForgeEventHandlerInterface {
 		) );
 	}
 	
+	@NotNull
+	private String replaceParameters( @NotNull String message, @NotNull Map<String, String> parameters ) {
+		
+		String result = message;
+		for( Map.Entry<String, String> entry : parameters.entrySet() ) {
+			result = result.replace( "%" + entry.getKey() + "%", entry.getValue() );
+		}
+		return result;
+	}
+	
 	private int caculateSleepingPercent( int sleep_player_count, int non_spectator_player_count ) {
 		
 		return non_spectator_player_count == 0 ? 0 : sleep_player_count * 100 / non_spectator_player_count;
 	}
 	
 	@SubscribeEvent
-	@Override
 	public void handleServerStartingEvent( @NotNull ServerStartingEvent event ) {
 		
 		init();
-		WorldWorkerManager.addWorker( new SleepingWorker( this ) );
+		serverConfig.onServerStarting();
+	}
+	
+	@SubscribeEvent
+	public void handleServerTickEvent( @NotNull ServerTickEvent.Post event ) {
+		
+		if( SLEEPING != null && event.getServer().getTickCount() % 20 == 0 ) {
+			updateSleepingPlayers( event.getServer() );
+		}
 	}
 }
