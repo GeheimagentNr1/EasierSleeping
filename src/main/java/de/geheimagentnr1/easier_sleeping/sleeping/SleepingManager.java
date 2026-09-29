@@ -16,8 +16,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gamerules.GameRules;
+import net.minecraft.world.level.storage.LevelData;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.EventHooks;
@@ -42,7 +43,7 @@ public class SleepingManager {
 	
 	private void init() {
 		
-		SLEEPING = new TreeMap<>( Comparator.comparing( ResourceKey::location ) );
+		SLEEPING = new TreeMap<>( Comparator.comparing( ResourceKey::identifier ) );
 	}
 	
 	//package-private
@@ -96,7 +97,7 @@ public class SleepingManager {
 				non_spectator_player_count
 			);
 			if( sleeping_percent >= serverConfig.getSleepPercent() ) {
-				if( level.getGameRules().getBoolean( GameRules.RULE_DAYLIGHT ) ) {
+				if( level.getGameRules().get( GameRules.ADVANCE_TIME ) ) {
 					long currentDayTime = level.getDayTime();
 					long newDayTime = currentDayTime + 24000L - currentDayTime % 24000L;
 					newDayTime = EventHooks.onSleepFinished( level, newDayTime, currentDayTime );
@@ -104,11 +105,17 @@ public class SleepingManager {
 				}
 				sleeping_players.forEach( player -> {
 					player.getSleepingPos().ifPresent(
-						pos -> player.setRespawnPosition( level.dimension(), pos, player.getYRot(), false, false )
+						pos -> player.setRespawnPosition(
+							new ServerPlayer.RespawnConfig(
+								LevelData.RespawnData.of( level.dimension(), pos, player.getYRot(), player.getXRot() ),
+								false
+							),
+							false
+						)
 					);
 					player.stopSleepInBed( false, false );
 				} );
-				if( level.getGameRules().getBoolean( GameRules.RULE_WEATHER_CYCLE ) ) {
+				if( level.getGameRules().get( GameRules.ADVANCE_WEATHER ) ) {
 					level.setWeatherParameters( 0, 0, false, false );
 				}
 				if( serverConfig.getAllPlayersRest() ) {
@@ -195,8 +202,9 @@ public class SleepingManager {
 	private void sendMessage( @NotNull List<? extends Player> players, @NotNull MutableComponent message ) {
 		
 		for( Player player : players ) {
-			player.sendSystemMessage(
-				message.setStyle( Style.EMPTY.withColor( TextColor.fromLegacyFormat( ChatFormatting.GRAY ) ) )
+			player.displayClientMessage(
+				message.setStyle( Style.EMPTY.withColor( TextColor.fromLegacyFormat( ChatFormatting.GRAY ) ) ),
+				false
 			);
 		}
 	}

@@ -37,7 +37,7 @@ public class SleepCommand {
 	public LiteralArgumentBuilder<CommandSourceStack> build() {
 		
 		LiteralArgumentBuilder<CommandSourceStack> sleep = Commands.literal( "sleep" )
-			.requires( source -> source.hasPermission( 2 ) );
+			.requires( Commands.hasPermission( Commands.LEVEL_GAMEMASTERS ) );
 		sleep.then( Commands.literal( "sleep_percent" )
 			.executes( this::showSleepPercent )
 			.then( Commands.argument( "sleep_percent", IntegerArgumentType.integer( 0, 100 ) )
@@ -292,7 +292,7 @@ public class SleepCommand {
 			source.sendSuccess(
 				() -> Component.literal( String.format(
 					" - %s",
-					dimension.location()
+					dimension.identifier()
 				) ),
 				false
 			);
@@ -307,7 +307,7 @@ public class SleepCommand {
 		context.getSource().sendSuccess(
 			() -> Component.literal( String.format(
 				"Added Dimension: %s",
-				dimension.location()
+				dimension.identifier()
 			) ),
 			true
 		);
@@ -321,7 +321,7 @@ public class SleepCommand {
 		context.getSource().sendSuccess(
 			() -> Component.literal( String.format(
 				"Removed Dimension: %s",
-				dimension.location()
+				dimension.identifier()
 			) ),
 			true
 		);
@@ -364,7 +364,7 @@ public class SleepCommand {
 			source.sendSuccess(
 				() -> Component.literal( String.format(
 					" - %s",
-					dimension.location()
+					dimension.identifier()
 				) ),
 				false
 			);

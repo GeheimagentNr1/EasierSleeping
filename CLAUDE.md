@@ -2,11 +2,11 @@
 
 ## Projekt-Übersicht
 
-**Easier Sleeping** ist ein NeoForge Minecraft Mod für Minecraft 1.21.1.
+**Easier Sleeping** ist ein NeoForge Minecraft Mod für Minecraft 1.21.11 (Branch `develop_1.21.11`; ältere Versionen auf `develop_1.21.1` usw.).
 - **Mod ID**: `easier_sleeping`
 - **Package**: `de.geheimagentnr1.easier_sleeping`
 - **Java Version**: 21
-- **NeoForge Version**: 21.1.x
+- **NeoForge Version**: 21.11.x
 
 Nur ein Prozentsatz der Spieler muss schlafen, um die Nacht zu überspringen.
 
@@ -80,7 +80,7 @@ Für Integration Tests in einer echten Minecraft-Umgebung:
 ./gradlew runGameTestServer
 ```
 
-GameTest-Klassen werden mit `@GameTestHolder` annotiert und liegen unter `src/main/java/.../elements/gametests/`.
+Auf `develop_1.21.11` gibt es keine GameTests: das Annotations-Framework (`@GameTest`, `@GameTestHolder`) wurde in 1.21.11 entfernt, der triviale Smoke-Test wurde ersatzlos gelöscht (siehe `../Docs/migrations/1.21.10-to-1.21.11.md`).
 
 ### CI/CD (GitHub Actions)
 
@@ -102,3 +102,9 @@ Der Workflow `.github/workflows/build-and-test.yml` führt automatisch aus:
 ## Referenzen
 
 - [NeoForge Migration Primer](https://docs.neoforged.net/primer/docs/) — Dokumentiert API-Aenderungen zwischen Minecraft/NeoForge-Versionen; nuetzlich fuer die Pruefung von Breaking Changes beim Upgrade auf neue Versionen
+
+---
+
+## Wissensdatenbank
+
+Versionsübergreifende Migrations- und Entwicklungs-Erkenntnisse (Breaking Changes, Fixes, Testumgebungs-Patterns) werden zentral in [`../Docs/`](../Docs/) gepflegt. Bei neuen relevanten Erkenntnissen dort ergänzen, nicht nur hier.

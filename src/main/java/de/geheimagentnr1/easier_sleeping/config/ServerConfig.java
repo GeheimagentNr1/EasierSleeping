@@ -6,7 +6,7 @@ import lombok.extern.log4j.Log4j2;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.ModConfigSpec;
@@ -51,10 +51,10 @@ public class ServerConfig {
 	
 	@NotNull
 	private final TreeSet<ResourceKey<Level>> dimensions =
-		new TreeSet<>( Comparator.comparing( ResourceKey::location ) );
+		new TreeSet<>( Comparator.comparing( ResourceKey::identifier ) );
 	
 	@NotNull
-	private final TreeSet<ResourceLocation> blockBlacklist = new TreeSet<>();
+	private final TreeSet<Identifier> blockBlacklist = new TreeSet<>();
 	
 	public ServerConfig() {
 		
@@ -107,7 +107,7 @@ public class ServerConfig {
 		);
 		dimensionsConfig = builder.defineListAllowEmpty(
 			List.of( "dimensions" ),
-			() -> Collections.singletonList( Objects.requireNonNull( Level.OVERWORLD.location() ).toString() ),
+			() -> Collections.singletonList( Objects.requireNonNull( Level.OVERWORLD.identifier() ).toString() ),
 			() -> "",
 			obj -> obj instanceof String
 		);
@@ -166,7 +166,7 @@ public class ServerConfig {
 		
 		dimensions.clear();
 		for( String read_dimension : read_dimensions ) {
-			ResourceLocation registry_name = ResourceLocation.tryParse( read_dimension );
+			Identifier registry_name = Identifier.tryParse( read_dimension );
 			if( registry_name != null ) {
 				ResourceKey<Level> registrykey = ResourceKey.create( Registries.DIMENSION, registry_name );
 				ServerLevel serverLevel = ServerLifecycleHooks.getCurrentServer().getLevel( registrykey );
@@ -192,7 +192,7 @@ public class ServerConfig {
 		ArrayList<String> registryNames = new ArrayList<>();
 		
 		for( ResourceKey<Level> dimension : dimensions ) {
-			registryNames.add( Objects.requireNonNull( dimension.location() ).toString() );
+			registryNames.add( Objects.requireNonNull( dimension.identifier() ).toString() );
 		}
 		return registryNames;
 	}
@@ -204,7 +204,7 @@ public class ServerConfig {
 		for( ServerLevel serverLevel : ServerLifecycleHooks.getCurrentServer().getAllLevels() ) {
 			ResourceKey<Level> registrykey = serverLevel.dimension();
 			if( !dimensions.contains( registrykey ) ) {
-				newDimensionRegistryNames.add( Objects.requireNonNull( registrykey.location() ).toString() );
+				newDimensionRegistryNames.add( Objects.requireNonNull( registrykey.identifier() ).toString() );
 				
 			}
 		}
@@ -219,7 +219,7 @@ public class ServerConfig {
 		
 		blockBlacklist.clear();
 		for( String block : block_blacklist ) {
-			ResourceLocation registry_name = ResourceLocation.tryParse( block );
+			Identifier registry_name = Identifier.tryParse( block );
 			if( registry_name != null ) {
 				if( BuiltInRegistries.BLOCK.getOptional( registry_name ).isPresent() ) {
 					blockBlacklist.add( registry_name );
@@ -242,7 +242,7 @@ public class ServerConfig {
 		
 		ArrayList<String> registryNames = new ArrayList<>();
 		
-		for( ResourceLocation block : blockBlacklist ) {
+		for( Identifier block : blockBlacklist ) {
 			registryNames.add( Objects.requireNonNull( block ).toString() );
 		}
 		return registryNames;
@@ -397,7 +397,7 @@ public class ServerConfig {
 	}
 	
 	@NotNull
-	public TreeSet<ResourceLocation> getIgnoredBedBlocks() {
+	public TreeSet<Identifier> getIgnoredBedBlocks() {
 		
 		return blockBlacklist;
 	}
