@@ -56,27 +56,27 @@ Filters that can be configured using log event rates, regular expressions, scrip
 It contains several extension points to introduce custom components, if needed.
       https://logging.apache.org/log4j/2.x/
 
-asm (9.8) - BSD-3-Clause
+asm (9.9.1) - BSD-3-Clause
 ASM, a very small and fast Java bytecode manipulation framework
 http://asm.ow2.io/
 
-asm-analysis (9.8) - BSD-3-Clause
+asm-analysis (9.9.1) - BSD-3-Clause
 Static code analysis API of ASM, a very small and fast Java bytecode manipulation framework
 http://asm.ow2.io/
 
-asm-commons (9.8) - BSD-3-Clause
+asm-commons (9.9.1) - BSD-3-Clause
 Usefull class adapters based on ASM, a very small and fast Java bytecode manipulation framework
 http://asm.ow2.io/
 
-asm-tree (9.8) - BSD-3-Clause
+asm-tree (9.9.1) - BSD-3-Clause
 Tree API of ASM, a very small and fast Java bytecode manipulation framework
 http://asm.ow2.io/
 
-asm-util (9.8) - BSD-3-Clause
+asm-util (9.9.1) - BSD-3-Clause
 Utilities for ASM, a very small and fast Java bytecode manipulation framework
 http://asm.ow2.io/
 
-authlib (7.0.61)
+authlib (7.0.63)
 
 blocklist (1.0.10)
 
@@ -90,13 +90,13 @@ datafixerupper (9.0.19)
 
 DevLaunch (1.0.2)
 
-earlydisplay (10.0.36)
+earlydisplay (11.0.5)
 
 error-prone annotations (2.41.0) - Apache 2.0
 Error Prone is a static analysis tool for Java that catches common programming mistakes at compile-time.
 https://errorprone.info
 
-Fabric Mixin (0.16.5+mixin.0.8.7) - The MIT License
+Fabric Mixin (0.17.0+mixin.0.8.7) - The MIT License
 Fabric Mixin is a trait/mixin and bytecode weaving framework for Java using ASM.
 https://github.com/FabricMC/Mixin
 
@@ -204,45 +204,45 @@ http://jspecify.org/
 
 jtracy (1.0.37)
 
-loader (10.0.36)
+loader (11.0.5)
 
 logging (1.6.11)
 
-LWJGL (3.3.3) - BSD-3-Clause
+LWJGL (3.4.1) - BSD-3-Clause
 The LWJGL core library.
 https://www.lwjgl.org
 
-LWJGL - FreeType bindings (3.3.3) - BSD-3-Clause
+LWJGL - FreeType bindings (3.4.1) - BSD-3-Clause
 A freely available software library to render fonts.
 https://www.lwjgl.org
 
-LWJGL - GLFW bindings (3.3.3) - BSD-3-Clause
+LWJGL - GLFW bindings (3.4.1) - BSD-3-Clause
 A multi-platform library for OpenGL, OpenGL ES and Vulkan development on the desktop. It provides a simple API for creating windows, contexts and surfaces, receiving input and events.
 https://www.lwjgl.org
 
-LWJGL - jemalloc bindings (3.3.3) - BSD-3-Clause
+LWJGL - jemalloc bindings (3.4.1) - BSD-3-Clause
 A general purpose malloc implementation that emphasizes fragmentation avoidance and scalable concurrency support.
 https://www.lwjgl.org
 
-LWJGL - OpenAL bindings (3.3.3) - BSD-3-Clause
+LWJGL - OpenAL bindings (3.4.1) - BSD-3-Clause
 A cross-platform 3D audio API appropriate for use with gaming applications and many other types of audio applications.
 https://www.lwjgl.org
 
-LWJGL - OpenGL bindings (3.3.3) - BSD-3-Clause
+LWJGL - OpenGL bindings (3.4.1) - BSD-3-Clause
 The most widely adopted 2D and 3D graphics API in the industry, bringing thousands of applications to a wide variety of computer platforms.
 https://www.lwjgl.org
 
-LWJGL - stb bindings (3.3.3) - BSD-3-Clause
+LWJGL - stb bindings (3.4.1) - BSD-3-Clause
 Single-file public domain libraries for fonts, images, ogg vorbis files and more.
 https://www.lwjgl.org
 
-LWJGL - Tiny File Dialogs bindings (3.3.3) - BSD-3-Clause
+LWJGL - Tiny File Dialogs bindings (3.4.1) - BSD-3-Clause
 Provides basic modal dialogs.
 https://www.lwjgl.org
 
-LZ4 Java Compression (1.8.1) - Apache License, Version 2.0
+LZ4 Java Compression (1.10.1) - Apache License, Version 2.0
 Java bindings and pure Java implementations of LZ4 and XXHash
-https://github.com/lz4/lz4-java
+https://github.com/yawkat/lz4-java
 
       Maven Artifact (3.9.9) - Apache-2.0
       Maven is a software build management and
@@ -262,7 +262,7 @@ Microsoft Azure Java JSON Library (1.4.0) - The MIT License (MIT)
 This package provides interfaces for reading and writing JSON.
 https://github.com/Azure/azure-sdk-for-java
 
-minecraft-dependencies (1.21.11)
+minecraft-dependencies (26.1)
 
 MixinExtras (0.5.3) - MIT License
 Companion library to Mixin with lots of features to improve the compatibility and concision of your mixins!
@@ -274,12 +274,12 @@ accounts, MSA) and Azure AD B2C, gaining access to Microsoft Cloud API and any o
 identities
         https://github.com/AzureAD/microsoft-authentication-library-for-java
 
-neoforge (21.11.45) - LGPL 2.1
+neoforge (26.1.0.19-beta) - LGPL 2.1
 Modifactions to Minecraft to enable mod developers.
 https://github.com/NeoForged/NeoForge
 
-NeoForm (1.21.11-20251209.172050) - All Rights Reserved, No redistribution.
-Configuration files used for deobfuscating and modding Minecraft.
+NeoForm (26.1-1) - LGPL-2.1-only
+Data and patches required to produce recompilable Minecraft source code
 https://github.com/NeoForged/NeoForm
 
       Netty/Buffer (4.2.7.Final) - Apache License, Version 2.0
@@ -366,7 +366,7 @@ patchy (2.2.10)
 more.
       https://codehaus-plexus.github.io/
 
-Project Lombok (1.18.34) - The MIT License
+Project Lombok (1.18.48) - The MIT License
 Spice up your java: Automatic Resource Management, automatic generation of getters, setters, equals, hashCode and toString, and more!
 https://projectlombok.org
 
@@ -385,9 +385,9 @@ SLF4J API Module (2.0.17) - MIT
 The slf4j API
 http://www.slf4j.org
 
-SRG Utils (0.4.15) - LGPLv2.1
+srgutils (1.0.10) - LGPL-2.1-only
 Library for managing java obfuscation mappings in various formats.
-https://github.com/MinecraftForge/SrgUtils
+https://github.com/NeoForged/SRGUtils
 
 TerminalConsoleAppender (1.3.0) - MIT License
 JLine 3 appender for Log4j2, allows extending command line apps using colors and command completion

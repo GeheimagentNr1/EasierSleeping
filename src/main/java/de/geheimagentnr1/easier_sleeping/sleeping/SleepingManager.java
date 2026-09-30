@@ -4,6 +4,7 @@ import de.geheimagentnr1.easier_sleeping.config.DimensionListType;
 import de.geheimagentnr1.easier_sleeping.config.ServerConfig;
 import lombok.RequiredArgsConstructor;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -14,13 +15,15 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
+import net.minecraft.world.clock.ClockTimeMarkers;
+import net.minecraft.world.clock.WorldClock;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.storage.LevelData;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.util.ClockAdjustment;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
@@ -97,11 +100,15 @@ public class SleepingManager {
 				non_spectator_player_count
 			);
 			if( sleeping_percent >= serverConfig.getSleepPercent() ) {
-				if( level.getGameRules().get( GameRules.ADVANCE_TIME ) ) {
-					long currentDayTime = level.getDayTime();
-					long newDayTime = currentDayTime + 24000L - currentDayTime % 24000L;
-					newDayTime = EventHooks.onSleepFinished( level, newDayTime, currentDayTime );
-					level.setDayTime( newDayTime );
+				Optional<Holder<WorldClock>> defaultClock = level.dimensionType().defaultClock();
+				if( level.getGameRules().get( GameRules.ADVANCE_TIME ) && defaultClock.isPresent() ) {
+					ClockAdjustment adjustment = EventHooks.onSleepFinished(
+						level,
+						new ClockAdjustment.Marker( ClockTimeMarkers.WAKE_UP_FROM_SLEEP )
+					);
+					if( adjustment != null ) {
+						adjustment.apply( level.clockManager(), defaultClock.get() );
+					}
 				}
 				sleeping_players.forEach( player -> {
 					player.getSleepingPos().ifPresent(
@@ -116,7 +123,7 @@ public class SleepingManager {
 					player.stopSleepInBed( false, false );
 				} );
 				if( level.getGameRules().get( GameRules.ADVANCE_WEATHER ) ) {
-					level.setWeatherParameters( 0, 0, false, false );
+					level.resetWeatherCycle();
 				}
 				if( serverConfig.getAllPlayersRest() ) {
 					level_players.forEach( player -> player.resetStat( Stats.CUSTOM.get( Stats.TIME_SINCE_REST ) ) );
@@ -202,9 +209,8 @@ public class SleepingManager {
 	private void sendMessage( @NotNull List<? extends Player> players, @NotNull MutableComponent message ) {
 		
 		for( Player player : players ) {
-			player.displayClientMessage(
-				message.setStyle( Style.EMPTY.withColor( TextColor.fromLegacyFormat( ChatFormatting.GRAY ) ) ),
-				false
+			player.sendSystemMessage(
+				message.setStyle( Style.EMPTY.withColor( TextColor.fromLegacyFormat( ChatFormatting.GRAY ) ) )
 			);
 		}
 	}
