@@ -256,6 +256,7 @@ public class ServerConfig {
 	public void setSleepPercent( int sleep_percent ) {
 		
 		sleepPercent.set( sleep_percent );
+		sleepPercent.save();
 	}
 	
 	@NotNull
@@ -283,6 +284,7 @@ public class ServerConfig {
 	public void setSleepMessages( @NotNull List<String> messages ) {
 		
 		sleepMessages.set( distinctMessages( messages ) );
+		sleepMessages.save();
 	}
 	
 	@NotNull
@@ -305,6 +307,7 @@ public class ServerConfig {
 	public void setWakeMessages( @NotNull List<String> messages ) {
 		
 		wakeMessages.set( distinctMessages( messages ) );
+		wakeMessages.save();
 	}
 	
 	@NotNull
@@ -327,6 +330,7 @@ public class ServerConfig {
 	public void setMorningMessages( @NotNull List<String> messages ) {
 		
 		morningMessages.set( distinctMessages( messages ) );
+		morningMessages.save();
 	}
 	
 	public boolean getAllPlayersRest() {
@@ -337,6 +341,7 @@ public class ServerConfig {
 	public void setAllPlayersRest( boolean all_player_rest ) {
 		
 		allPlayersRest.set( all_player_rest );
+		allPlayersRest.save();
 	}
 	
 	@NotNull
@@ -349,6 +354,7 @@ public class ServerConfig {
 	private void setDimensionsValue( @NotNull List<String> dimensionsValue ) {
 		
 		dimensionsConfig.set( dimensionsValue );
+		dimensionsConfig.save();
 	}
 	
 	@NotNull
@@ -382,6 +388,7 @@ public class ServerConfig {
 	public void setDimensionListType( @NotNull DimensionListType _dimensionListType ) {
 		
 		dimensionListType.set( _dimensionListType );
+		dimensionListType.save();
 	}
 	
 	@NotNull
@@ -394,6 +401,7 @@ public class ServerConfig {
 	private void setBlockBlacklist( @NotNull List<String> _blockBlacklist ) {
 		
 		blockBlacklistConfig.set( _blockBlacklist );
+		blockBlacklistConfig.save();
 	}
 	
 	@NotNull
