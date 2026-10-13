@@ -6,7 +6,7 @@ Diese Datei ist auf allen `develop_*`-Branches identisch; Quelle: `../Docs/mod-c
 
 ## Versionen
 
-- Forge: `develop_1.14.4` bis `develop_1.21`, dazu `develop_1.21.1_forge`. `develop_1.21.3` ist ein alter, nur lokaler Forge-Stand, kein NeoForge-Port.
+- Forge: `develop_1.14.4` bis `develop_1.21`, dazu `develop_1.21.1_forge`.
 - NeoForge: `develop_1.21.1` (1.21.1 - 1.21.10), `develop_1.21.11`, `develop_26.1` (ein Jar 26.1 - 26.3).
 - Jar-Grenzen: 1.21.11 (`Identifier`, GameRules, `RespawnConfig`, Rechtesystem), 26.1 (World Clocks). Ranges und Tags: [`../Docs/VERSIONEN.md`](../Docs/VERSIONEN.md).
 
